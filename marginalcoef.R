@@ -1,5 +1,5 @@
 #' Marginal Coefficients from a 'brms' Model
-#'
+#' modified from brmsmargins::marginalcoef
 #' Calculate marginal coefficients from a \code{brms}
 #' generalized linear mixed model using the method proposed by Hedeker (2018).
 #'
