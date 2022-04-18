@@ -77,7 +77,7 @@ marginalcoef <- function(object, preddat, summarize = TRUE, posterior = FALSE, i
   
   # see prediction function. 
   # get the predictive posterior distribution of \mu 
-  lambda <- brmsmargins::prediction(
+  mu <- prediction(
     object, data = mf,
     summarize = FALSE, posterior = TRUE, index = index,
     effects = "integrateoutRE", backtrans = backtrans,
@@ -85,7 +85,7 @@ marginalcoef <- function(object, preddat, summarize = TRUE, posterior = FALSE, i
   
   # convert \mu to \eta = g(\mu). links$fun: link function
   # get lambda_pa in equation 6 in Hedeker's paper
-  y <- links$fun(t(lambda$Posterior))
+  y <- links$fun(t(mu$Posterior))
   ## dim(y) <- number of observations * number of draws(in MCMC)
   
   

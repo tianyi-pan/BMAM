@@ -1,4 +1,5 @@
-### compare with frequentist MAM ##############################
+### compare with frequentist MAM 
+### load packages #####################
 library(mam)
 library(mgcv)
 library(gamm4)
@@ -6,7 +7,8 @@ library(tidyverse)
 library(brms)
 library(brmsmargins)
 library(data.table)
-## generate data
+
+### generate data #######################
 get_data_mam <- function(SSmat,x1,x2,x3,K,Nk){
   if(SSmat[2,2]==0){
     V <- as.data.frame(rnorm(K,0,sqrt(SSmat[1,1])))
@@ -55,8 +57,8 @@ sigma0 <- 2 #2 # random intercept sd
 sigma3 <- 1 # random slope sd
 rho <- 0.5 # correlation between random intercept and slope
 
-K = 200
-Nk = 10
+K = 100
+Nk = 20
 sigma0 = 2
 sigma3 = 1
 rho = 0.5
@@ -67,7 +69,7 @@ trueSigma <- matrix(c(sigma0^2,
                       rho*sigma0*sigma3,rho*sigma0*sigma3,
                       sigma3^2),nrow=2,ncol=2)
 
-## generate data
+## generate pred data
 x1 <- round(runif(K*Nk,-1,1),3)
 x3 <- round(runif(K*Nk,-1,1),3)
 x2 <- round(runif(K*Nk,-1,1),3)
@@ -81,19 +83,29 @@ dat2pred <- data.frame(x1 = c(seq(-1,1,length=gridlen),rep(0,2*gridlen)),
 dat2pred$fx1 <- f1(dat2pred$x1)
 dat2pred$fx2 <- f2(dat2pred$x2)
 
-View(dat2pred)
 
-model <- brm(bf(y ~  x3 + s(x1) + s(x2) + (1+x3|id)),
-             data = dat, family = "bernoulli", cores = 2, seed = 17,
-             warmup = 1000, iter = 2000, chains = 4, refresh=0, backend = "cmdstanr")
+
+
+### Model #################### 
+
+## BMAM
+if(TRUE){
+  # don't wrong. Very slow. use load("data/simu_brms.rds")
+  model_brms <- brm(bf(y ~  x3 + s(x1) + s(x2) + (1+x3|id)),
+                    data = dat, family = "bernoulli", cores = 2, seed = 17,
+                    warmup = 1000, iter = 2000, chains = 4, refresh=0, backend = "cmdstanr")
+  # save(model_brms, file = "data/simu_brms.rds")
+}
+# load("data/simu_brms.rds")
 
 source("marginalcoef.R")
-mc <- marginalcoef(object = model, preddat = dat2pred, CI = 0.95, posterior = T)
+mc <- marginalcoef(object = model_brms, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
 
 # mc <- marginalcoef(object = model, preddat = dat, CI = 0.95, posterior = T)
 
 
 
+## MAM
 themam <- mam::mam(smooth = list(s(x1),s(x2)),
                    re = y ~ (1+x3|id),
                    fe = ~ x3,
@@ -106,25 +118,71 @@ themam <- mam::mam(smooth = list(s(x1),s(x2)),
                      verbose = FALSE,
                      retcond = TRUE))
 
-1.96*as.numeric(themam$mam$fitted_se)
 
 
 
-## predicted 
-dat2pred_results <- cbind(dat2pred, mc$Predicted_Summary$M, themam$mam$fitted)
-names(dat2pred_results)[6:7] <- c("BMAM", "MAM")
-dat2pred_results_plot <- filter(dat2pred_results,x2==0,x3==0)
-colors <- c("BMAM" = "red", "MAM" = "blue", "Fx1" = "black")
-ggplot(dat2pred_results_plot, aes(x=x1)) + 
-  geom_line(aes(y=BMAM, colour = "BMAM")) + 
-  geom_line(aes(y=MAM, colour = "MAM")) + 
-  geom_line(aes(y=fx1, colour = "Fx1")) + 
-  scale_color_manual(values = colors) + labs(color = "", x="X1", y = "f(X1)")
+### plot ##################
+## plot set up
+library(gridExtra)
+library(patchwork)
+GGPLOTTEXTSIZE <- 15
+PLOTWIDTH <- PLOTHEIGHT <- 7
+myrange=c(-3,2.5)
+theme_set(theme_bw())
+theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-dat2pred_results_plot <- filter(dat2pred_results,x1==0,x3==0)
-colors <- c("BMAM" = "red", "MAM" = "blue", "Fx1" = "black")
-ggplot(dat2pred_results_plot, aes(x=x2)) + 
-  geom_line(aes(y=BMAM, colour = "BMAM")) + 
-  geom_line(aes(y=MAM, colour = "MAM")) + 
-  geom_line(aes(y=fx2, colour = "Fx1")) + 
-  scale_color_manual(values = colors) + labs(color = "", x="X2", y = "f(X2)")
+
+## data prepare
+themam.uci <- themam$mam$fitted+1.96*themam$mam$fitted_se
+themam.lci <- themam$mam$fitted-1.96*themam$mam$fitted_se
+
+
+dfplotfx1 <- data.frame(x = rep(dat2pred$x1[1:100],2),
+                        fitted = c(mc$Predicted_Summary$M[1:100],themam$mam$fitted[1:100]),
+                        uci = c(mc$Predicted_Summary$UL[1:100], themam.uci[1:100]),
+                        lci = c(mc$Predicted_Summary$LL[1:100], themam.lci[1:100]),
+                        Method = rep(c("BMAM", "MAM"), each = 100))
+
+dfplotfx2 <- data.frame(x = rep(dat2pred$x2[101:200],2),
+                      fitted = c(mc$Predicted_Summary$M[101:200],themam$mam$fitted[101:200]),
+                      uci = c(mc$Predicted_Summary$UL[101:200], themam.uci[101:200]),
+                      lci = c(mc$Predicted_Summary$LL[101:200], themam.lci[101:200]),
+                      Method = rep(c("BMAM", "MAM"), each = 100))
+
+
+
+## plot
+ggx1 <- ggplot(data=dfplotfx1,aes(x=x,y=fitted, group=Method))+
+  geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
+  geom_line(aes(colour = Method), size = 1)+
+  geom_line(aes(y=rep(dat2pred$fx1[1:100],2)), size = 1, lty = "dashed")+
+  ylim(myrange)+
+  xlab(expression(X[1]))+
+  ylab(expression(f~(X[1])))+
+  theme(text = element_text(size = GGPLOTTEXTSIZE))
+ggx1
+ggx2 <- ggplot(data=dfplotfx2,aes(x=x,y=fitted, group=Method))+
+  geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
+  geom_line(aes(colour = Method), size = 1)+
+  geom_line(aes(y=rep(dat2pred$fx2[101:200],2)), size = 1, lty = "dashed")+
+  ylim(myrange)+
+  xlab(expression(X[2]))+
+  ylab(expression(f~(X[2])))+
+  theme(text = element_text(size = GGPLOTTEXTSIZE))
+ggx2
+
+
+
+combined <- ggx1 + ggx2 & theme(legend.position = "right")
+gg_combined <- combined + plot_layout(guides = "collect")  # combine two plots
+gg_combined
+
+
+## save plots
+ggsave(filename = file.path(paste0('figures/simulation-combined', 'K = ', as.character(K),
+                                   'Nk = ', as.character(Nk), '.pdf')),
+       plot = gg_combined,
+       width=2*PLOTWIDTH,height=PLOTHEIGHT)
+
+
+

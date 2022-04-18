@@ -7,7 +7,7 @@ library(brms)
 library(data.table)
 library(brmsmargins)
 source("marginalcoef.R")
-
+source("prediction.R")
 ### data ################
 
 data(beavers)
@@ -29,14 +29,14 @@ beaverspred <- data.frame(time=rep(seq(min(beavers$time),max(beavers$time),lengt
 
 ## BMAM
 if(FALSE){ 
-  ## Don't run. Very slow. use load("beavers_brms.rds")
+  ## Don't run. Very slow. use load("data/beavers_brms.rds")
   brms_model <- brm(bf(y ~ year + s(timeF) + s(timeM) + (sex0-1|id)+(sex1-1|id)),
                     data = beavers, family = "bernoulli", cores = 2, seed = 17,
                     warmup = 1000, iter = 2000, chains = 4,backend = "cmdstanr")
-  # save(brms_model,file="beavers_brms.rds")
+  # save(brms_model,file="data/beavers_brms.rds")
 }
 
-load("beavers_brms.rds")
+load("data/beavers_brms.rds")
 mc <- marginalcoef(object = brms_model, centered = TRUE, preddat = beaverspred, CI = 0.95, CIType="ETI", posterior = T)
 ## type of CI: Can be 'ETI' (default), 'HDI', 'BCI', 'SPI' or 'SI'.
 ## https://easystats.github.io/bayestestR/reference/ci.html
