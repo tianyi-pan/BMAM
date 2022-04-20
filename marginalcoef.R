@@ -1,5 +1,5 @@
 #' Marginal Coefficients from a 'brms' Model
-#' modified from brmsmargins::marginalcoef
+#' modified from \code{brmsmargins::marginalcoef}
 #' Calculate marginal coefficients from a \code{brms}
 #' generalized linear mixed model using the method proposed by Hedeker (2018).
 #'
@@ -22,7 +22,11 @@
 #'   \dQuote{invlogit}, \dQuote{exp}, \dQuote{square}, or \dQuote{inverse}.
 #'   Custom back transformations should only be needed if, for example,
 #'   the outcome variable was transformed prior to fitting the model.
-#'   default: \dQuote{response}
+#' default: \dQuote{response}
+#' @param centered whether or not return centered smooths. Default \code{FALSE}
+#'   If \code{TRUE}, the smooth predictions returned will have their means
+#'   subtracted such that they have mean zero across the supplied covariate
+#'   values for predictions. See \code{MAM} package. 
 #' @param k An integer providing the number of random draws to use for
 #'   integrating out the random effects. Only relevant when \code{effects}
 #'   is \dQuote{integrateoutRE}.
@@ -170,11 +174,14 @@ marginalcoef <- function(object, preddat, summarize = TRUE, posterior = FALSE, i
       object <- restructure(object)
       prep <- prepare_predictions(object, newdata = preddat,check_response = FALSE, re_formula = NA)
       
+      ## Xs: basis function for smooth term, without penalty (ncol = 1)
       pred_Xs <- prep$dpars$mu$sm$fe$Xs
       
+      ## Zs: basis function for smooth term (ncol = k-2)
       pred_Zs <- sapply(prep$dpars$mu$sm$re, function(re.)re.$Zs)
       pred_Zs <- do.call(cbind, pred_Zs)
       
+      ## X: linear term, for example intercept + x1 + x2 + x1:x2
       pred_X <- prep$dpars$mu$fe$X
       
       
