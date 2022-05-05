@@ -7,6 +7,11 @@ library(tidyverse)
 library(brms)
 library(brmsmargins)
 library(data.table)
+source("marginalcoef.R")
+source("prediction.R")
+source("builder.R")
+source("generate_pred.R")
+source("integretere_fullbayesian.R")
 
 ### generate data #######################
 get_data_mam <- function(SSmat,x1,x2,x3,K,Nk){
@@ -98,17 +103,16 @@ if(TRUE){
 }
 # load("data/simu_brms.rds")
 
-source("marginalcoef.R")
-source("prediction.R")
-source("builder.R")
-source("integretere_fullbayesian.R")
+
 mc.T <- marginalcoef(object = model_brms, fullbayesian = T, k=500, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
 # save(mc.T, file = "mc_simulation.rds")
 
 mc.F <- marginalcoef(object = model_brms, fullbayesian = F, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
+mc.F <- marginalcoef(object = model_brms, fullbayesian = F, 
+                     # preddat = dat2pred,
+                     CIType="ETI", CI = 0.95, posterior = T)
 
 # mc <- marginalcoef(object = model, preddat = dat, CI = 0.95, posterior = T)
-
 
 
 ## MAM

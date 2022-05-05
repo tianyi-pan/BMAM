@@ -1,3 +1,10 @@
+#' @title generate predicted data
+#' 
+#' @param object a bmam model object
+#' @param length number of observations in the generated data
+#'
+#' @return predicted data, used by \code{marginalcoef()}
+#'
 generate_pred <- function(object, length = 100){
   mf <- model.frame(object) # data in object 
   
@@ -36,9 +43,12 @@ generate_pred <- function(object, length = 100){
   
   
   preddat <- lapply(smvariable, function(var){
+    ## pred data for this variable
     sm_pred_design <- sm_pred; sm_pred_design[,] <- 0
     sm_pred_design[[var]] <- sm_pred[[var]]
-    cbind(sm_pred_design, fe_pred)
+    preddat_var <- cbind(sm_pred_design, fe_pred)
+    preddat_var$varname <- as.character(var) # column to indicate the name of variable
+    preddat_var
   })
   
   preddat <- do.call("rbind",preddat)

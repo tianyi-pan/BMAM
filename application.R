@@ -12,7 +12,7 @@ source("prediction.R")
 source("builder.R")
 source("generate_pred.R")
 source("integretere_fullbayesian.R")
-
+source("plot.bmam.R")
 ### data ################
 
 data(beavers)
@@ -52,8 +52,8 @@ mc <- marginalcoef(object = brms_model, fullbayesian = F, centered = TRUE,
                    CI = 0.95, CIType="ETI", posterior = T)
 
 
-# save(mc, file="mc.rds")
-load("mc.rds")
+# save(mc, file="data/mc.rds")
+load("data/mc.rds")
 ## type of CI: Can be 'ETI' (default), 'HDI', 'BCI', 'SPI' or 'SI'.
 ## https://easystats.github.io/bayestestR/reference/ci.html
 
@@ -87,6 +87,14 @@ PLOTWIDTH <- PLOTHEIGHT <- 7
 myrange=c(-2,3.2)
 theme_set(theme_bw())
 theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+## plot using plot.bmam function
+## TO DO: change object as a S3 class! plot(mc)
+gg <- plot.bmam(mc)
+
+## we can add other elements (or set up) outside the function 
+gg[[1]] + ggtitle("test")
 
 
 ## data prepare
