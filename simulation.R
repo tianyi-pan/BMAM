@@ -75,7 +75,7 @@ x3 <- round(runif(K*Nk,-1,1),3)
 x2 <- round(runif(K*Nk,-1,1),3)
 dat <- get_data_mam(trueSigma,x1,x2,x3,K,Nk)
 
-gridlen=100
+gridlen <- 100
 dat2pred <- data.frame(x1 = c(seq(-1,1,length=gridlen),rep(0,2*gridlen)),
                        x2 = c(rep(0,gridlen),seq(-1,1,length=gridlen),rep(0,gridlen)),
                        x3 = c(rep(0,2*gridlen),seq(-1,1,length=gridlen)))
@@ -102,8 +102,8 @@ source("marginalcoef.R")
 source("prediction.R")
 source("builder.R")
 source("integretere_fullbayesian.R")
-mc.T <- marginalcoef(object = model_brms, fullbayesian = T, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
-save(mc.T, file = "mc_simulation.rds")
+mc.T <- marginalcoef(object = model_brms, fullbayesian = T, k=500, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
+# save(mc.T, file = "mc_simulation.rds")
 
 mc.F <- marginalcoef(object = model_brms, fullbayesian = F, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
 
@@ -129,7 +129,7 @@ themam <- mam::mam(smooth = list(s(x1),s(x2)),
 
 ### plot ##################
 ## plot set up
-mc <- mc.T
+
 library(gridExtra)
 library(patchwork)
 GGPLOTTEXTSIZE <- 15
@@ -144,34 +144,36 @@ themam.uci <- themam$mam$fitted+1.96*themam$mam$fitted_se
 themam.lci <- themam$mam$fitted-1.96*themam$mam$fitted_se
 
 
-dfplotfx1 <- data.frame(x = rep(dat2pred$x1[1:100],2),
-                        fitted = c(mc$Predicted_Summary$M[1:100],themam$mam$fitted[1:100]),
-                        uci = c(mc$Predicted_Summary$UL[1:100], themam.uci[1:100]),
-                        lci = c(mc$Predicted_Summary$LL[1:100], themam.lci[1:100]),
-                        Method = rep(c("BMAM", "MAM"), each = 100))
+dfplotfx1 <- data.frame(x = rep(dat2pred$x1[1:100],3),
+                        fitted = c(mc.T$Predicted_Summary$M[1:100],mc.F$Predicted_Summary$M[1:100], themam$mam$fitted[1:100]),
+                        uci = c(mc.T$Predicted_Summary$UL[1:100],mc.F$Predicted_Summary$UL[1:100], themam.uci[1:100]),
+                        lci = c(mc.T$Predicted_Summary$LL[1:100],mc.F$Predicted_Summary$LL[1:100], themam.lci[1:100]),
+                        Method = rep(c("BMAM Fully","BMAM", "MAM"), each = 100))
 
-dfplotfx2 <- data.frame(x = rep(dat2pred$x2[101:200],2),
-                      fitted = c(mc$Predicted_Summary$M[101:200],themam$mam$fitted[101:200]),
-                      uci = c(mc$Predicted_Summary$UL[101:200], themam.uci[101:200]),
-                      lci = c(mc$Predicted_Summary$LL[101:200], themam.lci[101:200]),
-                      Method = rep(c("BMAM", "MAM"), each = 100))
 
+
+dfplotfx2 <- data.frame(x = rep(dat2pred$x2[101:200],3),
+                        fitted = c(mc.T$Predicted_Summary$M[101:200],mc.F$Predicted_Summary$M[101:200], themam$mam$fitted[101:200]),
+                        uci = c(mc.T$Predicted_Summary$UL[101:200],mc.F$Predicted_Summary$UL[101:200], themam.uci[101:200]),
+                        lci = c(mc.T$Predicted_Summary$LL[101:200],mc.F$Predicted_Summary$LL[101:200], themam.lci[101:200]),
+                        Method = rep(c("BMAM Fully","BMAM", "MAM"), each = 100))
 
 
 ## plot
 ggx1 <- ggplot(data=dfplotfx1,aes(x=x,y=fitted, group=Method))+
-  geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
+  # geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.1, size = 0.3)+
   geom_line(aes(colour = Method), size = 1)+
-  geom_line(aes(y=rep(dat2pred$fx1[1:100],2)), size = 1, lty = "dashed")+
+  geom_line(aes(y=rep(dat2pred$fx1[1:100],3)), size = 1, lty = "dashed")+
   ylim(myrange)+
   xlab(expression(X[1]))+
   ylab(expression(f~(X[1])))+
   theme(text = element_text(size = GGPLOTTEXTSIZE))
 ggx1
+
 ggx2 <- ggplot(data=dfplotfx2,aes(x=x,y=fitted, group=Method))+
-  geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
+  # geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
   geom_line(aes(colour = Method), size = 1)+
-  geom_line(aes(y=rep(dat2pred$fx2[101:200],2)), size = 1, lty = "dashed")+
+  geom_line(aes(y=rep(dat2pred$fx2[101:200],3)), size = 1, lty = "dashed")+
   ylim(myrange)+
   xlab(expression(X[2]))+
   ylab(expression(f~(X[2])))+
@@ -186,7 +188,7 @@ gg_combined
 
 
 ## save plots
-ggsave(filename = file.path(paste0('figures/fullbayes(wrong)-simulation-combined', 'K = ', as.character(K),
+ggsave(filename = file.path(paste0('figures/fullbayes(k=500)-simulation-combined', 'K = ', as.character(K),
                                    'Nk = ', as.character(Nk), '.pdf')),
        plot = gg_combined,
        width=2*PLOTWIDTH,height=PLOTHEIGHT)

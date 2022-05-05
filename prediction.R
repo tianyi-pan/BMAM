@@ -250,7 +250,7 @@ prediction <- function(object, data, summarize = TRUE, posterior = FALSE,
       
       if(fullbayesian){
         yhat <- integratere_fullbayesian(d2, sd, L, J, post, usecoef,usegroup, k, yhat, links$ifun)
-        ## TO DO: change it to cpp file
+        ## TO DO: write it as cpp code
       }else{
         yhat <- integratere(d = d2, sd = sd, L = L, k = k,
                             yhat = yhat, backtrans = links$useilinknum)  
