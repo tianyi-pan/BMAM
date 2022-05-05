@@ -44,7 +44,7 @@
 #' @importFrom methods missingArg
 #' @export
 marginalcoef <- function(object, preddat, summarize = TRUE, posterior = FALSE, index,
-                         fullbayesian = TRUE, 
+                         fullbayesian = TRUE, length = 100,
                          backtrans = c("response", "linear", "identity",
                                        "invlogit", "exp", "square", "inverse"),
                          centered = FALSE,
@@ -58,7 +58,10 @@ marginalcoef <- function(object, preddat, summarize = TRUE, posterior = FALSE, i
   if (isFALSE(brmsmargins:::is.random(object))) {
     stop("object must have random effects to use marginalcoef()")
   }
-
+  
+  ## pred data
+  if (missingArg(preddat)) preddat <- generate_pred(object, length)
+    
   ## assert the assumed family / distribution is a supported one
   brmsmargins:::.assertfamily(object)
   ## assert the link function used is a supported one
@@ -140,9 +143,12 @@ marginalcoef <- function(object, preddat, summarize = TRUE, posterior = FALSE, i
   # heagerty's method, solve 
   beta <- lmcpp(B, y)
   rownames(beta) <- colnames(B)
+  
+  
   out <- list(
     Summary = NULL,
     Posterior = NULL,
+    Preddat = NULL,
     DesignMatrix = NULL,
     Bname = NULL,
     Smooth = NULL,
@@ -243,6 +249,7 @@ marginalcoef <- function(object, preddat, summarize = TRUE, posterior = FALSE, i
     if (isTRUE(posterior)) {
       out$Posterior <- beta
     }
+    out$Preddat <- preddat
   }
 
   return(out)

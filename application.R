@@ -10,6 +10,8 @@ library(dplyr)
 source("marginalcoef.R")
 source("prediction.R")
 source("builder.R")
+source("generate_pred.R")
+source("integretere_fullbayesian.R")
 
 ### data ################
 
@@ -40,7 +42,16 @@ if(FALSE){
 }
 
 load("data/beavers_brms.rds")
-mc <- marginalcoef(object = brms_model,fullbayesian = T, centered = TRUE, preddat = beaverspred, CI = 0.95, CIType="ETI", posterior = T)
+
+
+beaverspred <- generate_pred(brms_model, length = 100)
+mc <- marginalcoef(object = brms_model, fullbayesian = F, centered = TRUE, 
+                   preddat = beaverspred, CI = 0.95, CIType="ETI", posterior = T)
+
+mc <- marginalcoef(object = brms_model, fullbayesian = F, centered = TRUE, 
+                   CI = 0.95, CIType="ETI", posterior = T)
+
+
 # save(mc, file="mc.rds")
 load("mc.rds")
 ## type of CI: Can be 'ETI' (default), 'HDI', 'BCI', 'SPI' or 'SI'.
@@ -82,13 +93,13 @@ theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_bla
 bv.mam.uci <- bv.mam$mam$fitted+1.96*bv.mam$mam$fitted_se
 bv.mam.lci <- bv.mam$mam$fitted-1.96*bv.mam$mam$fitted_se
 
-dfplotF <- data.frame(time = rep(beaverspred$time[101:200],2),
+dfplotF <- data.frame(time = rep(beaverspred$timeM[101:200],2),
                       fitted = c(mc$Predicted_Summary$M[101:200],bv.mam$mam$fitted[101:200]),
                       uci = c(mc$Predicted_Summary$UL[101:200], bv.mam.uci[101:200]),
                       lci = c(mc$Predicted_Summary$LL[101:200], bv.mam.lci[101:200]),
                       Method = rep(c("BMAM", "MAM"), each = 100))
 
-dfplotM <- data.frame(time = rep(beaverspred$time[1:100],2),
+dfplotM <- data.frame(time = rep(beaverspred$timeF[1:100],2),
                       fitted = c(mc$Predicted_Summary$M[1:100],bv.mam$mam$fitted[1:100]),
                       uci = c(mc$Predicted_Summary$UL[1:100], bv.mam.uci[1:100]),
                       lci = c(mc$Predicted_Summary$LL[1:100], bv.mam.lci[1:100]),
