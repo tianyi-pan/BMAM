@@ -57,8 +57,8 @@ sigma0 <- 2 #2 # random intercept sd
 sigma3 <- 1 # random slope sd
 rho <- 0.5 # correlation between random intercept and slope
 
-K = 100
-Nk = 20
+K = 50
+Nk = 10
 sigma0 = 2
 sigma3 = 1
 rho = 0.5
@@ -90,7 +90,7 @@ dat2pred$fx2 <- f2(dat2pred$x2)
 
 ## BMAM
 if(TRUE){
-  # don't wrong. Very slow. use load("data/simu_brms.rds")
+  # don't run. Very slow. use load("data/simu_brms.rds")
   model_brms <- brm(bf(y ~  x3 + s(x1) + s(x2) + (1+x3|id)),
                     data = dat, family = "bernoulli", cores = 2, seed = 17,
                     warmup = 1000, iter = 2000, chains = 4, refresh=0, backend = "cmdstanr")
@@ -99,7 +99,13 @@ if(TRUE){
 # load("data/simu_brms.rds")
 
 source("marginalcoef.R")
-mc <- marginalcoef(object = model_brms, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
+source("prediction.R")
+source("builder.R")
+source("integretere_fullbayesian.R")
+mc.T <- marginalcoef(object = model_brms, fullbayesian = T, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
+save(mc.T, file = "mc_simulation.rds")
+
+mc.F <- marginalcoef(object = model_brms, fullbayesian = F, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
 
 # mc <- marginalcoef(object = model, preddat = dat, CI = 0.95, posterior = T)
 
@@ -123,6 +129,7 @@ themam <- mam::mam(smooth = list(s(x1),s(x2)),
 
 ### plot ##################
 ## plot set up
+mc <- mc.T
 library(gridExtra)
 library(patchwork)
 GGPLOTTEXTSIZE <- 15
@@ -179,7 +186,7 @@ gg_combined
 
 
 ## save plots
-ggsave(filename = file.path(paste0('figures/simulation-combined', 'K = ', as.character(K),
+ggsave(filename = file.path(paste0('figures/fullbayes(wrong)-simulation-combined', 'K = ', as.character(K),
                                    'Nk = ', as.character(Nk), '.pdf')),
        plot = gg_combined,
        width=2*PLOTWIDTH,height=PLOTHEIGHT)

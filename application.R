@@ -6,8 +6,11 @@ library(mgcv)
 library(brms)
 library(data.table)
 library(brmsmargins)
+library(dplyr)
 source("marginalcoef.R")
 source("prediction.R")
+source("builder.R")
+
 ### data ################
 
 data(beavers)
@@ -37,7 +40,9 @@ if(FALSE){
 }
 
 load("data/beavers_brms.rds")
-mc <- marginalcoef(object = brms_model, centered = TRUE, preddat = beaverspred, CI = 0.95, CIType="ETI", posterior = T)
+mc <- marginalcoef(object = brms_model,fullbayesian = T, centered = TRUE, preddat = beaverspred, CI = 0.95, CIType="ETI", posterior = T)
+# save(mc, file="mc.rds")
+load("mc.rds")
 ## type of CI: Can be 'ETI' (default), 'HDI', 'BCI', 'SPI' or 'SI'.
 ## https://easystats.github.io/bayestestR/reference/ci.html
 
@@ -100,6 +105,7 @@ ggF <- ggplot(data=dfplotF,aes(x=time,y=fitted, group=Method))+
   ggtitle("Female") +
   theme(text = element_text(size = GGPLOTTEXTSIZE))
 ggF
+
 ggM <- ggplot(data=dfplotM,aes(x=time,y=fitted, group=Method))+
   geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
   geom_line(aes(colour = Method), size = 1)+

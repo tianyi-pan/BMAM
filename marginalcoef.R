@@ -44,6 +44,7 @@
 #' @importFrom methods missingArg
 #' @export
 marginalcoef <- function(object, preddat, summarize = TRUE, posterior = FALSE, index,
+                         fullbayesian = TRUE, 
                          backtrans = c("response", "linear", "identity",
                                        "invlogit", "exp", "square", "inverse"),
                          centered = FALSE,
@@ -83,6 +84,7 @@ marginalcoef <- function(object, preddat, summarize = TRUE, posterior = FALSE, i
   # get the predictive posterior distribution of \mu 
   mu <- prediction(
     object, data = mf,
+    fullbayesian = fullbayesian,
     summarize = FALSE, posterior = TRUE, index = index,
     effects = "integrateoutRE", backtrans = backtrans,
     k = k, raw = TRUE)
