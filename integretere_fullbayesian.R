@@ -9,12 +9,21 @@ integratere_fullbayesian <- function(d2, sd, L, J, post, usecoef,usegroup, k, yh
         sd_i <- sd[[re_id]][i,]
         L_i <- L[[re_id]][i,]
         yhat_i <- yhat[i,]
+        
+        z_sam <- sample(seq_len(nsample), min(nsample,k))
+        
         r[[re_id]] <- lapply(J[[re_id]], function(J.){
-          index <- which(unique(J[[re_id]])==J.) 
-          z <- .buildz(data = post, id = J., usecoef,usegroup)
-          z_sam <- sample(seq_len(nsample), min(nsample,k))
-          z <- lapply(z, function(z.) z.[z_sam])
-          do.call("cbind",z) %*% diag(sd_i) %*% matrix(L_i, nrow = 2)
+          ## r
+          r <- .buildr(data = post, id = J., usecoef,usegroup)
+          r <- lapply(r, function(r.) r.[z_sam])
+          do.call("cbind",r)
+          
+          ## z
+          # index <- which(unique(J[[re_id]])==J.)
+          # z <- .buildz(data = post, id = J., usecoef,usegroup)
+          # z <- lapply(z, function(z.) z.[z_sam])
+          # do.call("cbind",z) %*% diag(sd_i) %*% matrix(L_i, nrow = 2)
+          
         })
         Z[[re_id]] <- mapply(r[[re_id]], as.data.frame(t(d2[[re_id]])), 
                              FUN = function(r_tmp, d2_tmp) r_tmp %*% d2_tmp) 

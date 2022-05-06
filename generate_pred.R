@@ -40,8 +40,6 @@ generate_pred <- function(object, length = 100){
     fe_pred <- NULL
   }
   
-  
-  
   preddat <- lapply(smvariable, function(var){
     ## pred data for this variable
     sm_pred_design <- sm_pred; sm_pred_design[,] <- 0

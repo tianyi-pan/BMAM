@@ -104,13 +104,17 @@ if(TRUE){
 # load("data/simu_brms.rds")
 
 
-mc.T <- marginalcoef(object = model_brms, fullbayesian = T, k=500, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
+mc.T <- marginalcoef(object = model_brms, fullbayesian = T, 
+                     k=100, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
+# mc.Tz <- marginalcoef(object = model_brms, fullbayesian = T, 
+#                       k=100, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
 # save(mc.T, file = "mc_simulation.rds")
 
 mc.F <- marginalcoef(object = model_brms, fullbayesian = F, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
-mc.F <- marginalcoef(object = model_brms, fullbayesian = F, 
-                     # preddat = dat2pred,
-                     CIType="ETI", CI = 0.95, posterior = T)
+
+# mc.F <- marginalcoef(object = model_brms, fullbayesian = F, 
+#                      # preddat = dat2pred,
+#                      CIType="ETI", CI = 0.95, posterior = T)
 
 # mc <- marginalcoef(object = model, preddat = dat, CI = 0.95, posterior = T)
 
@@ -192,7 +196,7 @@ gg_combined
 
 
 ## save plots
-ggsave(filename = file.path(paste0('figures/fullbayes(k=500)-simulation-combined', 'K = ', as.character(K),
+ggsave(filename = file.path(paste0('figures/fullbayes-r(k=100)-simulation-combined', 'K = ', as.character(K),
                                    'Nk = ', as.character(Nk), '.pdf')),
        plot = gg_combined,
        width=2*PLOTWIDTH,height=PLOTHEIGHT)
