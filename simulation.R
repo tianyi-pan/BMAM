@@ -62,8 +62,8 @@ sigma0 <- 2 #2 # random intercept sd
 sigma3 <- 1 # random slope sd
 rho <- 0.5 # correlation between random intercept and slope
 
-K = 50
-Nk = 10
+K = 200
+Nk = 20
 sigma0 = 2
 sigma3 = 1
 rho = 0.5
@@ -98,7 +98,7 @@ if(TRUE){
   # don't run. Very slow. use load("data/simu_brms.rds")
   model_brms <- brm(bf(y ~  x3 + s(x1) + s(x2) + (1+x3|id)),
                     data = dat, family = "bernoulli", cores = 2, seed = 17,
-                    warmup = 1000, iter = 2000, chains = 4, refresh=0, backend = "cmdstanr")
+                    warmup = 1000, iter = 2000, chains = 2, refresh=0, backend = "cmdstanr")
   # save(model_brms, file = "data/simu_brms.rds")
 }
 # load("data/simu_brms.rds")
