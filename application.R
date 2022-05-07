@@ -9,9 +9,7 @@ library(brmsmargins)
 library(dplyr)
 source("marginalcoef.R")
 source("prediction.R")
-source("builder.R")
 source("generate_pred.R")
-source("integretere_fullbayesian.R")
 source("plot.bmam.R")
 ### data ################
 
@@ -44,12 +42,8 @@ if(FALSE){
 load("data/beavers_brms.rds")
 
 
-beaverspred <- generate_pred(brms_model, length = 100)
-mc <- marginalcoef(object = brms_model, fullbayesian = F, centered = TRUE, 
-                   preddat = beaverspred, CI = 0.95, CIType="ETI", posterior = T)
-
-mc <- marginalcoef(object = brms_model, fullbayesian = T, 
-                     k=100, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
+mc <- marginalcoef(object = brms_model, centered = TRUE, preddat = beaverspred,
+                   CI = 0.95, CIType="ETI", posterior = T)
 
 # mc <- marginalcoef(object = brms_model, fullbayesian = F, centered = TRUE, 
 #                    CI = 0.95, CIType="ETI", posterior = T)
@@ -59,6 +53,8 @@ mc <- marginalcoef(object = brms_model, fullbayesian = T,
 # load("data/mc.rds")
 ## type of CI: Can be 'ETI' (default), 'HDI', 'BCI', 'SPI' or 'SI'.
 ## https://easystats.github.io/bayestestR/reference/ci.html
+
+
 
 
 ## MAM
@@ -94,7 +90,16 @@ theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_bla
 
 ## plot using plot.bmam function
 ## TO DO: change object as a S3 class! plot(mc)
-# gg <- plot.bmam(mc)
+gg <- plot.bmam(mc)
+
+
+## plan
+## 1. TO DO: plot conditional model
+## 2. HMC. apply. How to use it. trace plot. convergence
+## 3. Vignette. See BKMR package.
+
+
+
 
 ## we can add other elements (or set up) outside the function 
 # gg[[1]] + ggtitle("test")
@@ -104,13 +109,13 @@ theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_bla
 bv.mam.uci <- bv.mam$mam$fitted+1.96*bv.mam$mam$fitted_se
 bv.mam.lci <- bv.mam$mam$fitted-1.96*bv.mam$mam$fitted_se
 
-dfplotF <- data.frame(time = rep(beaverspred$timeF[101:200],2),
+dfplotM <- data.frame(time = rep(beaverspred$timeM[101:200],2),
                       fitted = c(mc$Predicted_Summary$M[101:200],bv.mam$mam$fitted[101:200]),
                       uci = c(mc$Predicted_Summary$UL[101:200], bv.mam.uci[101:200]),
                       lci = c(mc$Predicted_Summary$LL[101:200], bv.mam.lci[101:200]),
                       Method = rep(c("BMAM", "MAM"), each = 100))
 
-dfplotM <- data.frame(time = rep(beaverspred$timeM[1:100],2),
+dfplotF <- data.frame(time = rep(beaverspred$timeF[1:100],2),
                       fitted = c(mc$Predicted_Summary$M[1:100],bv.mam$mam$fitted[1:100]),
                       uci = c(mc$Predicted_Summary$UL[1:100], bv.mam.uci[1:100]),
                       lci = c(mc$Predicted_Summary$LL[1:100], bv.mam.lci[1:100]),
@@ -146,9 +151,9 @@ gg_combined
 
 
 ## save plots
-ggsave(filename = file.path('figures/beaver-fully bayes-time-female.pdf'),plot = ggF,width=PLOTWIDTH,height=PLOTHEIGHT)
-ggsave(filename = file.path('figures/beaver-fully bayes-time-male.pdf'),plot = ggM,width=PLOTWIDTH,height=PLOTHEIGHT)
-ggsave(filename = file.path('figures/beaver-fully bayes-time-combined.pdf'),plot = gg_combined,width=2*PLOTWIDTH,height=PLOTHEIGHT)
+ggsave(filename = file.path('figures/beaver-time-female.pdf'),plot = ggF,width=PLOTWIDTH,height=PLOTHEIGHT)
+ggsave(filename = file.path('figures/beaver-time-male.pdf'),plot = ggM,width=PLOTWIDTH,height=PLOTHEIGHT)
+ggsave(filename = file.path('figures/beaver-time-combined.pdf'),plot = gg_combined,width=2*PLOTWIDTH,height=PLOTHEIGHT)
 
 
 

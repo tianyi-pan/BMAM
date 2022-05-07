@@ -73,7 +73,6 @@
 prediction <- function(object, data, summarize = TRUE, posterior = FALSE,
                        index, dpar = NULL, resample = 0L, resampleseed = FALSE,
                        effects = c("fixedonly", "includeRE", "integrateoutRE"),
-                       fullbayesian = TRUE, 
                        backtrans = c("response", "linear", "identity",
                                      "invlogit", "exp", "square", "inverse"),
                        k = 100L, raw = FALSE, ...) {
@@ -171,65 +170,8 @@ prediction <- function(object, data, summarize = TRUE, posterior = FALSE,
       nblocks <- length(blocks)
 
       d2 <- sd <- L <- vector("list", nblocks)
-      # r <- vector("list",nblocks)
-      J <- vector("list",nblocks)
-      z <- vector("list",nblocks)
-      
-      
-      # if (fullbayesian){
-      # for (i in seq_len(nblocks)) {
-      #   useblock <- blocks[i]
-      #   usere <- re[id == useblock]
-      #   num <- max(usere$cn)
-      #   usecoef <- usere$coef
-      #   usegroup <- unique(usere$group)
-      #   d2[[i]] <- brmsmargins:::.buildZ(data = dtmp, block = useblock, number = num, dpar = dpar)
-      #   J[[i]] <- .buildJ(dtmp, useblock)[[1]]
-      #   # r[[i]] <- .buildr(data = post, id = J[[i]], usecoef,usegroup)  # TO DO: change dim
-      #   sd[[i]] <- brmsmargins:::.buildSD(data = post, ranef = usere, block = useblock, dpar = dpar)
-      #   L[[i]] <- brmsmargins:::.buildL(data = post, block = useblock, number = num)
-      #   z[[i]] <- .buildz(data = post, id = J[[i]], usecoef,usegroup)
-      #   # Z[[i]] <- sapply(J[[i]], function(row.){
-      #   #   # r_index <- which(unique(J[[i]])==row.) 
-      #   #   # r <- .buildr(data = post, id = row., usecoef,usegroup)
-      #   #   z <- .buildz(data = post, id = row., usecoef,usegroup)
-      #   #   # d2[[i]][row.,] * r[[i]][[r_index]] 
-      #   #   do.call(cbind,r) %*% d2[[i]][row.,] 
-      #   # })
-      # }
-      
-      # ## TO Do: change dim
-      # Z.sum <- do.call("+",Z)
-      # ## integrate Z1+Z2?
-      # inte <- function(yhat_row) ## integrate out random effect (full bayeisan).
-      #   colMeans(links$ifun(yhat_row + Z.sum))
-      # yhat.df <- as.data.frame(t(yhat))
-      # yhat <- t(sapply(yhat.df,inte))
-      
 
-      # # integrae for Z1 and Z2
-      ## sampling might not be independent. Randomly select k samples from Z1 and the other k samples from Z2, 
-      ## then sum them up as Z.sum
-      ## have a look at the dist. of r
       
-      ## how to deal with two random effects. 1. See the brmsmargins, 2.try model with one random effect. 
-      # inte <- function(yhat_row) ## integrate out random effect (full bayeisan).
-      #   colMeans(links$ifun(yhat_row + Z[[1]]))
-      # yhat.df <- as.data.frame(t(yhat))
-      # yhat <- t(sapply(yhat.df,inte))
-      # 
-      # # yhat <- links$ifun(yhat)
-      
-      ## how to fasten the function? better function in R or Cpp
-      
-      # %>% apply(1, sum)
-      
-      ## !! to do: change cpp code!! 
-      ## use z instead of N(0,1), sample from z not generate data from N(0,1) 
-       # yhat <- integratere(d = d2, sd = sd, L = L, k = k,
-       #                    yhat = yhat, backtrans = links$useilinknum)
-       # 
-    # }else{
       for (i in seq_len(nblocks)) {
         useblock <- blocks[i]
         usere <- re[id == useblock]
@@ -238,26 +180,13 @@ prediction <- function(object, data, summarize = TRUE, posterior = FALSE,
         sd[[i]] <- brmsmargins:::.buildSD(data = post, ranef = usere, block = useblock, dpar = dpar)
         L[[i]] <- brmsmargins:::.buildL(data = post, block = useblock, number = num)
         
-        usecoef <- usere$coef
-        usegroup <- unique(usere$group)
-        J[[i]] <- .buildJ(dtmp, useblock)[[1]]
-        z[[i]] <- .buildz(data = post, id = J[[i]], usecoef,usegroup)
-        
-        names(d2)[i] <- names(sd)[i] <- names(L)[i] <- names(z)[i] <- names(J)[i] <- 
-          sprintf("Block%d", useblock)
+        names(d2)[i] <- names(sd)[i] <- names(L)[i] <- sprintf("Block%d", useblock)
       }
       # cpp file
-      
-      if(fullbayesian){
-        yhat <- integratere_fullbayesian(d2, sd, L, J, post, usecoef,usegroup, k, yhat, links$ifun)
-        ## TO DO: write it as cpp code
-      }else{
-        yhat <- integratere(d = d2, sd = sd, L = L, k = k,
+      yhat <- integratere(d = d2, sd = sd, L = L, k = k,
                             yhat = yhat, backtrans = links$useilinknum)  
-      }
-      
-      # }
-      
+
+
     }
   }
   # raw = true in marginalcoef.R

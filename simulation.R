@@ -104,20 +104,8 @@ if(TRUE){
 # load("data/simu_brms.rds")
 
 
-mc.T <- marginalcoef(object = model_brms, fullbayesian = T, 
+mc <- marginalcoef(object = model_brms, 
                      k=500, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
-# mc.Tz <- marginalcoef(object = model_brms, fullbayesian = T, 
-#                       k=100, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
-# save(mc.T, file = "mc_simulation.rds")
-
-mc.F <- marginalcoef(object = model_brms, fullbayesian = F, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
-
-# mc.F <- marginalcoef(object = model_brms, fullbayesian = F, 
-#                      # preddat = dat2pred,
-#                      CIType="ETI", CI = 0.95, posterior = T)
-
-# mc <- marginalcoef(object = model, preddat = dat, CI = 0.95, posterior = T)
-
 
 ## MAM
 themam <- mam::mam(smooth = list(s(x1),s(x2)),
@@ -152,24 +140,24 @@ themam.uci <- themam$mam$fitted+1.96*themam$mam$fitted_se
 themam.lci <- themam$mam$fitted-1.96*themam$mam$fitted_se
 
 
-dfplotfx1 <- data.frame(x = rep(dat2pred$x1[1:100],3),
-                        fitted = c(mc.T$Predicted_Summary$M[1:100],mc.F$Predicted_Summary$M[1:100], themam$mam$fitted[1:100]),
-                        uci = c(mc.T$Predicted_Summary$UL[1:100],mc.F$Predicted_Summary$UL[1:100], themam.uci[1:100]),
-                        lci = c(mc.T$Predicted_Summary$LL[1:100],mc.F$Predicted_Summary$LL[1:100], themam.lci[1:100]),
-                        Method = rep(c("BMAM Fully","BMAM", "MAM"), each = 100))
+dfplotfx1 <- data.frame(x = rep(dat2pred$x1[1:100],2),
+                        fitted = c(mc$Predicted_Summary$M[1:100], themam$mam$fitted[1:100]),
+                        uci = c(mc$Predicted_Summary$UL[1:100], themam.uci[1:100]),
+                        lci = c(mc$Predicted_Summary$LL[1:100], themam.lci[1:100]),
+                        Method = rep(c("BMAM", "MAM"), each = 100))
 
 
 
-dfplotfx2 <- data.frame(x = rep(dat2pred$x2[101:200],3),
-                        fitted = c(mc.T$Predicted_Summary$M[101:200],mc.F$Predicted_Summary$M[101:200], themam$mam$fitted[101:200]),
-                        uci = c(mc.T$Predicted_Summary$UL[101:200],mc.F$Predicted_Summary$UL[101:200], themam.uci[101:200]),
-                        lci = c(mc.T$Predicted_Summary$LL[101:200],mc.F$Predicted_Summary$LL[101:200], themam.lci[101:200]),
-                        Method = rep(c("BMAM Fully","BMAM", "MAM"), each = 100))
+dfplotfx2 <- data.frame(x = rep(dat2pred$x2[101:200],2),
+                        fitted = c(mc$Predicted_Summary$M[101:200], themam$mam$fitted[101:200]),
+                        uci = c(mc$Predicted_Summary$UL[101:200], themam.uci[101:200]),
+                        lci = c(mc$Predicted_Summary$LL[101:200], themam.lci[101:200]),
+                        Method = rep(c("BMAM", "MAM"), each = 100))
 
 
 ## plot
 ggx1 <- ggplot(data=dfplotfx1,aes(x=x,y=fitted, group=Method))+
-  # geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.1, size = 0.3)+
+  geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.1, size = 0.3)+
   geom_line(aes(colour = Method), size = 1)+
   geom_line(aes(y=rep(dat2pred$fx1[1:100],3)), size = 1, lty = "dashed")+
   ylim(myrange)+
@@ -179,7 +167,7 @@ ggx1 <- ggplot(data=dfplotfx1,aes(x=x,y=fitted, group=Method))+
 ggx1
 
 ggx2 <- ggplot(data=dfplotfx2,aes(x=x,y=fitted, group=Method))+
-  # geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
+  geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
   geom_line(aes(colour = Method), size = 1)+
   geom_line(aes(y=rep(dat2pred$fx2[101:200],3)), size = 1, lty = "dashed")+
   ylim(myrange)+
@@ -196,7 +184,7 @@ gg_combined
 
 
 ## save plots
-ggsave(filename = file.path(paste0('figures/fullbayes-r(k=500)-simulation-combined', 'K = ', as.character(K),
+ggsave(filename = file.path(paste0('figures/simulation-combined', 'K = ', as.character(K),
                                    'Nk = ', as.character(Nk), '.pdf')),
        plot = gg_combined,
        width=2*PLOTWIDTH,height=PLOTHEIGHT)
