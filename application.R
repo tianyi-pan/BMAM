@@ -42,22 +42,24 @@ if(FALSE){
 load("data/beavers_brms.rds")
 
 
-mc <- bmam(object = brms_model, centered = TRUE,
+mc <- bmam(object = brms_model, centered = FALSE,
                    CI = 0.95, CIType="ETI", posterior = T)
 beaverspred <- mc$Preddat
 
-# save(mc, file="data/mc.rds")
-# load("data/mc.rds")
 ## type of CI: Can be 'ETI' (default), 'HDI', 'BCI', 'SPI' or 'SI'.
 ## https://easystats.github.io/bayestestR/reference/ci.html
 
 
 
-## Bayesian GAM
-# bgam <- brm(bf(y ~ year + s(timeF) + s(timeM), center = TRUE),
-#                    data = beavers, family = "bernoulli", cores = 4, seed = 17,
-#                    warmup = 1000, iter = 2000, chains = 4,backend = "cmdstanr")
+# Bayesian GAM
+if(FALSE){
+  bgam <- brm(bf(y ~ year + s(timeF) + s(timeM)),
+              data = beavers, family = "bernoulli", cores = 4, seed = 17,
+              warmup = 1000, iter = 2000, chains = 4,backend = "cmdstanr")
+}
 
+# save(bgam, file = "data/bgam-beavers.rds")
+load("data/bgam-beavers.rds")
 
 ## MAM
 bv.mam <- mam(
@@ -68,7 +70,7 @@ bv.mam <- mam(
   margdat = beavers,
   preddat = beaverspred,
   control = mam_control(
-    centered=TRUE,
+    centered = FALSE,
     method = 'trust',
     varmethod = 1,
     verbose = TRUE,
@@ -78,14 +80,8 @@ bv.mam <- mam(
 
 ## frequentist GAM
 ## Question: How to center? 
-# gam <- gam(y ~ year + s(timeF) + s(timeM),
-#            data=beavers,family=binomial(),method="REML")
-# gamfit <- predict(gam,newdata=beaverspred,se.fit=TRUE)
-# gamfitted <- gamfit$fit
-# gamfitted_se <- gamfit$se.fit
-# 
-# gam.uci <- gamfitted+1.96*gamfitted_se
-# gam.lci <- gamfitted-1.96*gamfitted_se
+gam <- gam(y ~ year + s(timeF) + s(timeM),
+           data=beavers,family=binomial(),method="REML")
 
 
 
@@ -121,7 +117,19 @@ theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_bla
 
 ## plot using plot.bmam function
 ## TO DO: change object as a S3 class! plot(mc)
-gg <- plot.bmam(object = mc,compared.model = bv.mam)
+gg <- plot.bmam(object = mc, compared.model = gam, display = FALSE)
+
+
+
+## save plots
+gg1 <- gg$Both[[1]] + ylab("") + ggtitle("")
+gg2 <- gg$Both[[2]] + ggtitle("")
+combined <- gg2 + gg1 & theme(legend.position = "right")
+gg_combined <- combined + plot_layout(guides = "collect")  # combine two plots
+gg_combined
+
+ggsave(filename = file.path('figures/beaver-comparision-2.pdf'),plot = gg_combined,width=2*PLOTWIDTH,height=PLOTHEIGHT)
+
 
 
 ## plan
