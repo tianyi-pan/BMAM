@@ -7,7 +7,7 @@ library(tidyverse)
 library(brms)
 library(brmsmargins)
 library(data.table)
-source("marginalcoef.R")
+source("bmam.R")
 source("prediction.R")
 source("builder.R")
 source("generate_pred.R")
@@ -104,7 +104,7 @@ if(TRUE){
 # load("data/simu_brms.rds")
 
 
-mc <- marginalcoef(object = model_brms, 
+mc <- bmam(object = model_brms, 
                      k=500, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
 
 ## MAM

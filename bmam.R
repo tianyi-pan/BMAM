@@ -45,7 +45,7 @@
 #' @importFrom brms make_standata
 #' @importFrom methods missingArg
 #' @export
-marginalcoef <- function(object, preddat, length = 100, summarize = TRUE, posterior = FALSE, index,
+bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FALSE, index,
                          backtrans = c("response", "linear", "identity",
                                        "invlogit", "exp", "square", "inverse"),
                          centered = FALSE,
@@ -146,7 +146,9 @@ marginalcoef <- function(object, preddat, length = 100, summarize = TRUE, poster
   
   
   out <- list(
+    # BRMS = NULL,
     Summary = NULL,
+    Summary_para = NULL,
     Posterior = NULL,
     Preddat = NULL,
     DesignMatrix = NULL,
@@ -155,9 +157,11 @@ marginalcoef <- function(object, preddat, length = 100, summarize = TRUE, poster
     Predicted_Summary = NULL,
     Predicted = NULL)
 
+  # out$BRMS <- object
   if (isTRUE(summarize)) { # does not work for 
     out$Summary <- as.data.table(do.call(rbind, apply(beta, 1, bsummary, ...)))
     out$Summary[, Label := colnames(B)]
+    out$Summary_para <- list(...) # get arguments for bsummary, used in plot function. 
   }
 
   if(smooth){
@@ -252,5 +256,6 @@ marginalcoef <- function(object, preddat, length = 100, summarize = TRUE, poster
     out$Preddat <- preddat
   }
 
+  # structure(out, class = "bmamfit")
   return(out)
 }

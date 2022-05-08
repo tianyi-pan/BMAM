@@ -7,7 +7,7 @@ library(brms)
 library(data.table)
 library(brmsmargins)
 library(dplyr)
-source("marginalcoef.R")
+source("bmam.R")
 source("prediction.R")
 source("generate_pred.R")
 source("plot.bmam.R")
@@ -22,10 +22,10 @@ beavers$sex1 <- as.numeric(beavers$sex=="F");beavers$sex1[beavers$sex1==0] <- 0.
 
 # Create the prediction data
 beaverspred <- data.frame(time=rep(seq(min(beavers$time),max(beavers$time),length=100),2),
-                          timeM=c(seq(min(beavers$time),max(beavers$time),length=100),rep(0,100)),
-                          timeF=c(rep(0,100),seq(min(beavers$time),max(beavers$time),length=100)),
+                          timeF=c(seq(min(beavers$time),max(beavers$time),length=100),rep(0,100)),
+                          timeM=c(rep(0,100),seq(min(beavers$time),max(beavers$time),length=100)),
                           year=factor(levels(beavers$year)[1],levels=levels(beavers$year)),
-                          sex=factor(rep(c("M","F"),each=100),levels=levels(beavers$sex)))
+                          sex=factor(rep(c("F","M"),each=100),levels=levels(beavers$sex)))
 
 
 ### Model ###############
@@ -42,11 +42,11 @@ if(FALSE){
 load("data/beavers_brms.rds")
 
 
-mc <- marginalcoef(object = brms_model, centered = TRUE, preddat = beaverspred,
-                   CI = 0.95, CIType="ETI", posterior = T)
-
-# mc <- marginalcoef(object = brms_model, fullbayesian = F, centered = TRUE, 
+# mc <- bmam(object = brms_model, centered = TRUE, preddat = beaverspred,
 #                    CI = 0.95, CIType="ETI", posterior = T)
+
+mc <- bmam(object = brms_model, centered = TRUE,
+                   CI = 0.95, CIType="ETI", posterior = T)
 
 
 # save(mc, file="data/mc.rds")
@@ -55,6 +55,11 @@ mc <- marginalcoef(object = brms_model, centered = TRUE, preddat = beaverspred,
 ## https://easystats.github.io/bayestestR/reference/ci.html
 
 
+
+## Bayesian GAM
+# bgam <- brm(bf(y ~ year + s(timeF) + s(timeM), center = TRUE),
+#                    data = beavers, family = "bernoulli", cores = 4, seed = 17,
+#                    warmup = 1000, iter = 2000, chains = 4,backend = "cmdstanr")
 
 
 ## MAM
@@ -74,6 +79,35 @@ bv.mam <- mam(
   )
 )
 
+## frequentist GAM
+## Question: How to center? 
+# gam <- gam(y ~ year + s(timeF) + s(timeM),
+#            data=beavers,family=binomial(),method="REML")
+# gamfit <- predict(gam,newdata=beaverspred,se.fit=TRUE)
+# gamfitted <- gamfit$fit
+# gamfitted_se <- gamfit$se.fit
+# 
+# gam.uci <- gamfitted+1.96*gamfitted_se
+# gam.lci <- gamfitted-1.96*gamfitted_se
+
+
+
+## Center the gam model?
+# library(mgcv)
+# set.seed(0)
+# n<-200;sig2<-4
+# x1 <- runif(n, 0, 1);x2 <- runif(n, 0, 1);x3 <- runif(n, 0, 1)
+# fac<-c(rep(1,n/2),rep(2,n/2)) # create factor
+# fac.1<-rep(0,n)+(fac==1);fac.2<-1-fac.1 # and dummy variables
+# fac<-as.factor(fac)
+# f1 <- exp(2 * x1) - 3.75887
+# f2 <- 0.2 * x1^11 * (10 * (1 - x1))^6 + 10 * (10 * x1)^3 * (1 - x1)^10
+# f<-f1*fac.1+f2*fac.2+x2
+# e <- rnorm(n, 0, sqrt(abs(sig2)))
+# y <- f + e
+# # NOTE: smooths will be centered, so need to include fac in model....
+# b<-gam(y~fac+s(x1,by=fac)+x2)
+# plot(b,pages=1)
 
 
 
@@ -90,11 +124,11 @@ theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_bla
 
 ## plot using plot.bmam function
 ## TO DO: change object as a S3 class! plot(mc)
-gg <- plot.bmam(mc)
+gg <- plot.bmam(object = mc,compared.model = bv.mam)
 
 
 ## plan
-## 1. TO DO: plot conditional model
+## 1. TO DO: plot conditional model. How to centerized?
 ## 2. HMC. apply. How to use it. trace plot. convergence
 ## 3. Vignette. See BKMR package.
 
@@ -114,6 +148,7 @@ dfplotM <- data.frame(time = rep(beaverspred$timeM[101:200],2),
                       uci = c(mc$Predicted_Summary$UL[101:200], bv.mam.uci[101:200]),
                       lci = c(mc$Predicted_Summary$LL[101:200], bv.mam.lci[101:200]),
                       Method = rep(c("BMAM", "MAM"), each = 100))
+
 
 dfplotF <- data.frame(time = rep(beaverspred$timeF[1:100],2),
                       fitted = c(mc$Predicted_Summary$M[1:100],bv.mam$mam$fitted[1:100]),

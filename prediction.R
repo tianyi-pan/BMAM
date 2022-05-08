@@ -128,8 +128,7 @@ prediction <- function(object, data, summarize = TRUE, posterior = FALSE,
   ## or generate just the fixed effects predictions (if integrateRE)
   
   
-  # possible: Might be wrong!
-  # In marginalcoefs, useRE <- NA. Do not consider random effect when doing posterior predictive distribution
+  # In bmams, useRE <- NA. Do not consider random effect when doing posterior predictive distribution
   # It can be termed as the posterior predictive distribution and random effects are zero.
   # when integrate the random effects, we should draw random effects from posterior distribution,
   # and then add them into the predicted value of y.  For One y, several drawed random effects, take average over these draws.
@@ -189,7 +188,7 @@ prediction <- function(object, data, summarize = TRUE, posterior = FALSE,
 
     }
   }
-  # raw = true in marginalcoef.R
+  # raw = true in bmam.R
   if (isTRUE(raw)) {
     if (isTRUE(summarize)) {
       message("summarize cannot be TRUE when raw = TRUE, setting to FALSE")
