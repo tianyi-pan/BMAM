@@ -21,11 +21,11 @@ beavers$sex0 <- as.numeric(beavers$sex=="M");beavers$sex0[beavers$sex0==0] <- 0.
 beavers$sex1 <- as.numeric(beavers$sex=="F");beavers$sex1[beavers$sex1==0] <- 0.0000001
 
 # Create the prediction data
-beaverspred <- data.frame(time=rep(seq(min(beavers$time),max(beavers$time),length=100),2),
-                          timeF=c(seq(min(beavers$time),max(beavers$time),length=100),rep(0,100)),
-                          timeM=c(rep(0,100),seq(min(beavers$time),max(beavers$time),length=100)),
-                          year=factor(levels(beavers$year)[1],levels=levels(beavers$year)),
-                          sex=factor(rep(c("F","M"),each=100),levels=levels(beavers$sex)))
+# beaverspred <- data.frame(time=rep(seq(min(beavers$time),max(beavers$time),length=100),2),
+#                           timeF=c(seq(min(beavers$time),max(beavers$time),length=100),rep(0,100)),
+#                           timeM=c(rep(0,100),seq(min(beavers$time),max(beavers$time),length=100)),
+#                           year=factor(levels(beavers$year)[1],levels=levels(beavers$year)),
+#                           sex=factor(rep(c("F","M"),each=100),levels=levels(beavers$sex)))
 
 
 ### Model ###############
@@ -42,12 +42,9 @@ if(FALSE){
 load("data/beavers_brms.rds")
 
 
-# mc <- bmam(object = brms_model, centered = TRUE, preddat = beaverspred,
-#                    CI = 0.95, CIType="ETI", posterior = T)
-
 mc <- bmam(object = brms_model, centered = TRUE,
                    CI = 0.95, CIType="ETI", posterior = T)
-
+beaverspred <- mc$Preddat
 
 # save(mc, file="data/mc.rds")
 # load("data/mc.rds")
@@ -129,6 +126,7 @@ gg <- plot.bmam(object = mc,compared.model = bv.mam)
 
 ## plan
 ## 1. TO DO: plot conditional model. How to centerized?
+##           preddat might be different.
 ## 2. HMC. apply. How to use it. trace plot. convergence
 ## 3. Vignette. See BKMR package.
 

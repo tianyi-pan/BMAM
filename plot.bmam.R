@@ -7,7 +7,6 @@
 #' @return a list containing ggplot objects. 
 #' @import ggplot2
 #'
-#' TO DO: change object as a S3 class!
 plot.bmam <- function(object, compared.model, showplot = TRUE){
 
   preddat <- object$Preddat # pred data in object 
