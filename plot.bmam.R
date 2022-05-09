@@ -1,6 +1,6 @@
-#' @title plot BMAM model
+#' @title plot() Method for Objects of Class 'bmam'
 #' 
-#' @param object a bmam model object
+#' @param object Objects of Class 'bmam'
 #' @param compared.model Other model compared with BMAM. 
 #'                       supported models: 1. mam
 #'                                         2. gam

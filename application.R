@@ -11,6 +11,7 @@ source("bmam.R")
 source("prediction.R")
 source("generate_pred.R")
 source("plot.bmam.R")
+source("summary.R")
 ### data ################
 
 data(beavers)
@@ -42,9 +43,11 @@ if(FALSE){
 load("data/beavers_brms.rds")
 
 
-mc <- bmam(object = brms_model, centered = FALSE,
+bmam <- bmam(object = brms_model, centered = FALSE,
                    CI = 0.95, CIType="ETI", posterior = T)
-beaverspred <- mc$Preddat
+bmam
+
+beaverspred <- bmam$Preddat
 
 ## type of CI: Can be 'ETI' (default), 'HDI', 'BCI', 'SPI' or 'SI'.
 ## https://easystats.github.io/bayestestR/reference/ci.html
@@ -116,8 +119,7 @@ theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_bla
 
 
 ## plot using plot.bmam function
-## TO DO: change object as a S3 class! plot(mc)
-gg <- plot.bmam(object = mc, compared.model = gam, display = FALSE)
+gg <- plot(object = bmam, compared.model = gam, display = FALSE)
 
 
 
@@ -150,16 +152,16 @@ bv.mam.uci <- bv.mam$mam$fitted+1.96*bv.mam$mam$fitted_se
 bv.mam.lci <- bv.mam$mam$fitted-1.96*bv.mam$mam$fitted_se
 
 dfplotM <- data.frame(time = rep(beaverspred$timeM[101:200],2),
-                      fitted = c(mc$Predicted_Summary$M[101:200],bv.mam$mam$fitted[101:200]),
-                      uci = c(mc$Predicted_Summary$UL[101:200], bv.mam.uci[101:200]),
-                      lci = c(mc$Predicted_Summary$LL[101:200], bv.mam.lci[101:200]),
+                      fitted = c(bmam$Predicted_Summary$M[101:200],bv.mam$mam$fitted[101:200]),
+                      uci = c(bmam$Predicted_Summary$UL[101:200], bv.mam.uci[101:200]),
+                      lci = c(bmam$Predicted_Summary$LL[101:200], bv.mam.lci[101:200]),
                       Method = rep(c("BMAM", "MAM"), each = 100))
 
 
 dfplotF <- data.frame(time = rep(beaverspred$timeF[1:100],2),
-                      fitted = c(mc$Predicted_Summary$M[1:100],bv.mam$mam$fitted[1:100]),
-                      uci = c(mc$Predicted_Summary$UL[1:100], bv.mam.uci[1:100]),
-                      lci = c(mc$Predicted_Summary$LL[1:100], bv.mam.lci[1:100]),
+                      fitted = c(bmam$Predicted_Summary$M[1:100],bv.mam$mam$fitted[1:100]),
+                      uci = c(bmam$Predicted_Summary$UL[1:100], bv.mam.uci[1:100]),
+                      lci = c(bmam$Predicted_Summary$LL[1:100], bv.mam.lci[1:100]),
                       Method = rep(c("BMAM", "MAM"), each = 100))
 
 

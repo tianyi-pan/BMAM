@@ -33,7 +33,7 @@
 #'   integrating out the random effects. Only relevant when \code{effects}
 #'   is \dQuote{integrateoutRE}.
 #' @param ... Additional arguments passed to \code{fitted()}
-#' @return A list with \code{Summary} and \code{Posterior}.
+#' @return Objects of Class 'bmam', a list with the fitted Bayesian marginal additive model.
 #'   Some of these may be \code{NULL} depending on the arguments used.
 #' @references
 #' Hedeker, D., du Toit, S. H., Demirtas, H. & Gibbons, R. D. (2018)
@@ -155,7 +155,9 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FA
     Bname = NULL,
     Smooth = NULL,
     Predicted_Summary = NULL,
-    Predicted = NULL)
+    Predicted = NULL,
+    Family = object$family,
+    Formula = object$formula)
 
   # out$BRMS <- object
   if (isTRUE(summarize)) { # does not work for 
@@ -256,6 +258,6 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FA
     out$Preddat <- preddat
   }
 
-  # structure(out, class = "bmamfit")
-  return(out)
+  structure(out, class = "bmam")
+  # return(out)
 }
