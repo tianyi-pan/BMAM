@@ -7,11 +7,10 @@ library(tidyverse)
 library(brms)
 library(brmsmargins)
 library(data.table)
-source("bmam.R")
-source("prediction.R")
-source("builder.R")
-source("generate_pred.R")
-source("integretere_fullbayesian.R")
+source("R/bmam.R")
+source("R/prediction.R")
+source("R/builder.R")
+source("R/generate_pred.R")
 
 ### generate data #######################
 get_data_mam <- function(SSmat,x1,x2,x3,K,Nk){
