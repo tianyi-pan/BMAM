@@ -36,7 +36,7 @@ if(FALSE){
   ## Don't run. Very slow. use load("data/beavers_brms.rds")
   brms_model <- brm(bf(y ~ year + s(timeF) + s(timeM) + (sex0-1|id)+(sex1-1|id)),
                     data = beavers, family = "bernoulli", cores = 2, seed = 17,
-                    warmup = 1000, iter = 2000, chains = 4,backend = "cmdstanr")
+                    warmup = 1000, iter = 2000, chains = 4, backend = "cmdstanr")
   # save(brms_model,file="data/beavers_brms.rds")
 }
 
