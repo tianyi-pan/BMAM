@@ -1,6 +1,6 @@
 #' @title generate predicted data
 #' 
-#' @param object a bmam model object
+#' @param object a brms model object
 #' @param length number of observations in the generated data
 #'
 #' @return predicted data, used by \code{marginalcoef()}
