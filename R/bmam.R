@@ -45,7 +45,7 @@
 #' @importFrom brms make_standata
 #' @importFrom methods missingArg
 #' @export
-bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FALSE, index,
+bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TRUE, index,
                          backtrans = c("response", "linear", "identity",
                                        "invlogit", "exp", "square", "inverse"),
                          centered = FALSE,

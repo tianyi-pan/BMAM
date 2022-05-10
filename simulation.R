@@ -9,23 +9,25 @@ library(brmsmargins)
 library(data.table)
 source("R/bmam.R")
 source("R/prediction.R")
-source("R/builder.R")
 source("R/generate_pred.R")
-
+source("R/SimData.R")
+source("R/summary.R")
+source("R/plot.bmam.R")
 ### generate data #######################
-dat <- SimData(100,10)
+simdata <- SimData(100,10)
+dat <- simdata$data
+fun <- simdata$f
 
 
 
-gridlen <- 100
-dat2pred <- data.frame(x1 = c(seq(-1,1,length=gridlen),rep(0,2*gridlen)),
-                       x2 = c(rep(0,gridlen),seq(-1,1,length=gridlen),rep(0,gridlen)),
-                       x3 = c(rep(0,2*gridlen),seq(-1,1,length=gridlen)))
 
-dat2pred$fx1 <- f1(dat2pred$x1)
-dat2pred$fx2 <- f2(dat2pred$x2)
-
-
+# gridlen <- 100
+# dat2pred <- data.frame(x1 = c(seq(-1,1,length=gridlen),rep(0,2*gridlen)),
+#                        x2 = c(rep(0,gridlen),seq(-1,1,length=gridlen),rep(0,gridlen)),
+#                        x3 = c(rep(0,2*gridlen),seq(-1,1,length=gridlen)))
+# 
+# dat2pred$fx1 <- f1(dat2pred$x1)
+# dat2pred$fx2 <- f2(dat2pred$x2)
 
 
 
@@ -42,8 +44,11 @@ if(TRUE){
 # load("data/simu_brms.rds")
 
 
-mc <- bmam(object = model_brms, 
-                     k=500, preddat = dat2pred,CIType="ETI", CI = 0.95, posterior = T)
+bmam <- bmam(object = model_brms,
+                     k=100, CIType="ETI", CI = 0.95)
+
+## preddat 
+dat2pred <- bmam$Preddat
 
 ## MAM
 themam <- mam::mam(smooth = list(s(x1),s(x2)),
@@ -66,12 +71,16 @@ themam <- mam::mam(smooth = list(s(x1),s(x2)),
 
 library(gridExtra)
 library(patchwork)
+library(ggplot2)
 GGPLOTTEXTSIZE <- 15
 PLOTWIDTH <- PLOTHEIGHT <- 7
 myrange=c(-3,2.5)
 theme_set(theme_bw())
 theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
+
+## plot function
+plot(bmam, compared.model = themam, smooth.function = fun)
 
 ## data prepare
 themam.uci <- themam$mam$fitted+1.96*themam$mam$fitted_se

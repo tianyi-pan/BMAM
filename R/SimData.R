@@ -1,6 +1,6 @@
 ## TO DO: make it flexible to support more models. 
 
-get_data_mam <- function(SSmat,x1,x2,x3,K,Nk){
+get_data_mam <- function(SSmat,x1,x2,x3,K,Nk,f1,f2,beta3){
   if(SSmat[2,2]==0){
     V <- as.data.frame(rnorm(K,0,sqrt(SSmat[1,1])))
     colnames(V) <- "intercepts"
@@ -57,7 +57,7 @@ SimData <- function(K, Nk){
   x1 <- round(runif(K*Nk,-1,1),3)
   x3 <- round(runif(K*Nk,-1,1),3)
   x2 <- round(runif(K*Nk,-1,1),3)
-  dat <- get_data_mam(trueSigma,x1,x2,x3,K,Nk)
-  return(dat)
+  dat <- get_data_mam(trueSigma,x1,x2,x3,K,Nk,f1,f2,beta3)
+  return(list(data = dat, f = list(f1,f2)))
 }
 

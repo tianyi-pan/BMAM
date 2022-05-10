@@ -42,6 +42,12 @@ if(FALSE){
 
 load("data/beavers_brms.rds")
 
+## trace plot of brms
+plot(
+  brms_model,
+  pars = NA,
+  combo = c("dens", "trace")
+)
 
 bmam <- bmam(object = brms_model, centered = FALSE,
                    CI = 0.95, CIType="ETI", posterior = T)

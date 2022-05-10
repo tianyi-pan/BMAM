@@ -10,7 +10,7 @@
 #' @return a list containing ggplot objects. 
 #' @import ggplot2
 #'
-plot.bmam <- function(object, compared.model, display = TRUE){
+plot.bmam <- function(object, compared.model, display = TRUE, smooth.function){
 
   preddat <- object$Preddat # pred data in object 
   
@@ -21,7 +21,7 @@ plot.bmam <- function(object, compared.model, display = TRUE){
   gg <- list( # list to store ggplot object
     BMAM = vector("list", length = length(plot_var)),
     Compared.Model = vector("list", length = length(plot_var)),
-    Both = vector("list", length = length(plot_var))
+    Comparison = vector("list", length = length(plot_var))
   )
 
   
@@ -32,10 +32,10 @@ plot.bmam <- function(object, compared.model, display = TRUE){
     
 
     dfplotM <- data.frame(x = preddat[[var]][index],
-                          fitted = mc$Predicted_Summary$M[index],
-                          uci = mc$Predicted_Summary$UL[index],
-                          lci = mc$Predicted_Summary$LL[index],
-                          Method = rep(c("BMAM"), each = length(index)))
+                                        fitted = object$Predicted_Summary$M[index],
+                                        uci = object$Predicted_Summary$UL[index],
+                                        lci = object$Predicted_Summary$LL[index],
+                                        Method = rep(c("BMAM"), each = length(index)))
     gg$BMAM[[i]] <- ggplot(data=dfplotM,aes(x=x,y=fitted))+
       geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
       geom_line(aes(colour = Method), size = 1)+
@@ -46,10 +46,22 @@ plot.bmam <- function(object, compared.model, display = TRUE){
       ggtitle("BMAM")
     
     
+    ## add true value to comparison
+    if(!missingArg(smooth.function)){
+      stopifnot(length(plot_var) == length(smooth.function))
+      fun <- smooth.function[[i]]
+      dfplotT <- data.frame(x = preddat[[var]][index],
+                            fitted = fun(preddat[[var]][index]),
+                            uci = fun(preddat[[var]][index]),
+                            lci = fun(preddat[[var]][index]),
+                            Method = rep(c("True Value"), each = length(index)))
+      dfplotBoth <- rbind(dfplotT, dfplotM)
+    }
     
+    ## compared model
     if(!missingArg(compared.model)){
+      if (!exists("dfplotBoth")) dfplotBoth <- dfplotM
       ## check whether the model is supported. 
-      
       if(!is.null(compared.model$mam)){ 
         ## MAM model 
         mam.uci <- compared.model$mam$fitted+1.96*compared.model$mam$fitted_se
@@ -87,7 +99,7 @@ plot.bmam <- function(object, compared.model, display = TRUE){
                               uci = brms_summary$UL[index],
                               lci = brms_summary$LL[index],
                               Method = rep(c("BGAM"), each = length(index)))
-      
+        
       }else{
         stop("the model is not supported yet.")
       }
@@ -101,17 +113,38 @@ plot.bmam <- function(object, compared.model, display = TRUE){
         scale_fill_manual(values = c("deepskyblue"), breaks = c(dfplotC$Method[1]))+
         ggtitle(as.character(dfplotC$Method[1]))
       
-      dfplotCompare <- rbind(dfplotM,dfplotC)
-      gg$Both[[i]] <- ggplot(data=dfplotCompare,aes(x=x,y=fitted, group=Method))+
+      dfplotBoth <- rbind(dfplotBoth,dfplotC)
+    }
+    
+    
+    ## settings for ggplot
+    if(!missingArg(smooth.function)){
+      values <- c("black", "coral") 
+      breaks <- c("True Value", "BMAM")
+    }else{
+      values <- c("coral") 
+      breaks <- c("BMAM")
+    }
+    if(!missingArg(compared.model)){
+      values <- c(values, "deepskyblue") 
+      breaks <- c(breaks, dfplotC$Method[1])
+    }
+    
+    if(exists("dfplotBoth")){
+      gg$Both[[i]] <- ggplot(data=dfplotBoth,aes(x=x,y=fitted, group=Method))+
         geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
         geom_line(aes(colour = Method), size = 1)+
         xlab(var)+
         ylab(expression(f~(X))) + 
-        scale_colour_manual(values = c("coral", "deepskyblue"), breaks = c("BMAM",dfplotC$Method[1]))+
-        scale_fill_manual(values = c("coral", "deepskyblue"), breaks = c("BMAM",dfplotC$Method[1]))+
-        ggtitle("Comparision")
+        scale_colour_manual(values = values, breaks = breaks)+
+        scale_fill_manual(values = values, breaks = breaks)+
+        ggtitle("Comparison")
+      remove(dfplotBoth)
     }
   }
+  
+  
+  
   
   if(display){
     oask <- devAskNewPage(TRUE)
