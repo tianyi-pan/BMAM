@@ -1,3 +1,5 @@
+## TO DO: make it flexible to support more models. 
+
 get_data_mam <- function(SSmat,x1,x2,x3,K,Nk){
   if(SSmat[2,2]==0){
     V <- as.data.frame(rnorm(K,0,sqrt(SSmat[1,1])))
