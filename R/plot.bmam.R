@@ -149,7 +149,9 @@ plot.bmam <- function(object, compared.model, display = TRUE, smooth.function){
   if(display){
     oask <- devAskNewPage(TRUE)
     on.exit(devAskNewPage(oask))
-    for (gg_model in gg){
+    gg_display <- gg
+    if(!is.null(gg$Both)) gg_display <- list(gg$Both)
+    for (gg_model in gg_display){
       for (gg_i in gg_model) {
         if(!is.null(gg_i)){
           dev.hold()

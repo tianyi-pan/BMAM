@@ -3,74 +3,277 @@ title: "Introduction to Bayesian Marginal Additive Models"
 author: "Tianyi Pan"
 date: "`r Sys.Date()`"
 output: 
-  rmarkdown::html_vignette:
-    fig_caption: yes
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    toc_depth: 3
+bibliography: bibfile.bib  
 vignette: >
   %\VignetteIndexEntry{Introduction to Bayesian Marginal Additive Models}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+
 ---
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  cache = TRUE,
+  fig.width = 5,
+  fig.height = 3.5 
 )
+knitr::opts_knit$set(root.dir = "/Users/pantianyi/Documents/Research/Bayesian MAM/BMAM")
 ```
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+```{r include=FALSE}
+## source code
+source("R/bmam.R")
+source("R/prediction.R")
+source("R/generate_pred.R")
+source("R/plot.bmam.R")
+source("R/summary.R")
+source("R/SimData.R")
+```
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+In this document, we illustrate R functions for Bayesian marginal additive models (BMAM). 
 
 ## Brief overview of Bayesian marginal additive models
+@heagerty2000marginalized present the marginal models in which the marginal mean, rather than the conditional mean given random effects, is regressed on covariates. Marginal models are useful when we are interest in associations averaged across a population of clusters. If the covariate-outcome association is unknown, we could use additive models to measure the potentially non-linear relationships. @mcgee2022flexible proposed a marginal additive model (MAM) for modeling dependent data with non-linear population-averaged associations. The R package [MAM](https://github.com/awstringer1/mam) is also available.
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+We propose a Bayesian marginal additive model (BMAM) to extend the marginal additive model (MAM) into the Bayesian context. 
 
-## Bisic example of Bayesian marginal additive models
+We consider a Generalized Additive Mixed Model (GAMM),
+$$
+g\left\{\mu^{\mathrm{C}}\left(\boldsymbol{x}_{i j}, \boldsymbol{z}_{i j} \mid \boldsymbol{u}_{i}\right)\right\}=\sum_{l=1}^{p} f_{l}^{\mathrm{C}}\left(x_{i j l}\right)+\boldsymbol{z}_{i j}^{\mathrm{T}} \boldsymbol{u}_{i}
+$$
+where random effects $\boldsymbol{u}_{i}$ follow a normal distribution with mean 0 and covariance matrix $\boldsymbol{\Sigma}=\boldsymbol{\Lambda} \boldsymbol{\Lambda}^{\mathrm{T}}$.
+
+**TBC**
 
 
-## Application in seasonality in beaver foraging behaviour
+## Basic example of Bayesian marginal additive models
+
+We use the build function to generate some data, to illustrate the main features of 
+our R functions for BMAM. The data are generated according to the set up in @mcgee2022flexible. 
+We consider the binary case, where the outcome variable $Y$ follows a Bernoulli distribution. The link function $g(\cdot)$ is set as logit function.  
+
+We generate three covariates $\boldsymbol{x}_{i j}=\left(x_{i j 1}, x_{i j 2}, x_{i j 3}\right)^{\mathrm{T}}$ where $x_{i j p} \sim \operatorname{Unif}(-1,1)$ for $p=1,2,3$. 
+After assuming the forms of smooth functions $f_{1}^{\mathrm{M}}(\cdot)$ and  $f_{2}^{\mathrm{M}}(\cdot)$, we could generate $Y_{ij}$ according to the marginal model,
+$$
+\operatorname{logit}\left\{\mu^{\mathrm{M}}\left(\boldsymbol{x}_{i j}\right)\right\}=f_{1}^{\mathrm{M}}\left(x_{i j 1}\right)+f_{2}^{\mathrm{M}}\left(x_{i j 2}\right)+\beta_{3} \cdot x_{i j 3}.
+$$
+In addition, we have the following random intercepts and slopes dependence structure, 
+
+$$
+\begin{aligned}
+\operatorname{logit}\left\{\mu^{\mathrm{C}}\left(\boldsymbol{x}_{i j} \mid u_{i}\right)\right\} &=\Delta\left(\boldsymbol{x}_{i j}\right)+u_{i 0}+u_{i 1} \cdot x_{i j 3} \\
+{\left[\begin{array}{l}
+u_{i 0} \\
+u_{i 1}
+\end{array}\right] } & \sim M V N\left(\left[\begin{array}{l}
+0 \\
+0
+\end{array}\right],\left[\begin{array}{cc}
+4 & 1 \\
+1 & 1
+\end{array}\right]\right)
+\end{aligned}
+$$
+
+Here we set $\beta_3 = 0$, the number of cluster $N = 100$ and the number of units within clusters $n_i = 10, \forall i \in\{1, \ldots, N\}$. More details are provided in @mcgee2022flexible. 
 
 
+```{r}
+set.seed(4321)
+simdata <- SimData(K = 100, Nk = 10)
+dat <- simdata$data
+fun <- simdata$f
 
+head(dat)
+```
+where `simdata$data` is the dataset we generate and `simdata$f` is the smooth functions
+$f_{1}^{\mathrm{M}}(\cdot)$ and  $f_{2}^{\mathrm{M}}(\cdot)$. 
 
-
-## Styles
-
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+```{r fig.height=3.5, fig.show='hold', fig.width=6}
+x = seq(-1,1,length=1000)
+f1 <- fun[[1]](x)
+f2 <- fun[[2]](x)
+par(mfrow = c(1,2))
+plot(x, f1, type = "l")
+plot(x, f2, type = "l")
+```
+```{r include=FALSE}
+par(mfrow = c(1,1))
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
 
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+### Fit BMAM
 
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+The BMAM is based on Bayesian GAMM, which could fitted by `brm` function in `brms` package.
+```{r message=FALSE, warning=FALSE}
+library(brms)
+model_brms <- brm(bf(y ~  x3 + s(x1) + s(x2) + (1+x3|id)),
+                  data = dat, family = "bernoulli", 
+                  cores = 4, seed = 4321,
+                  warmup = 1000, iter = 2000, chains = 4, 
+                  refresh=0, backend = "cmdstanr")
 ```
 
-Also a quote using `>`:
+The setting of `brm` function can be found in @burkner2017brms. We use `bf()` to specify a formula containing smooth term and random effects. The GAMM is specified as a logistic model and we sample 4 chains with 2000 iterations (the first 1000 iterations are warm-up). It should noted that our `BMAM` functions only support the [`cmdstanr` backend](https://mc-stan.org/cmdstanr/). 
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+Then, we draw the trace plots to check the convergence in Hamiltonian Monte Carlo in `brms` and the density plots of the posterior samples. 
+
+```{r fig.width = 5, fig.height = 7}
+plot(model_brms)
+```
+
+
+
+
+`BMAM` functions are built on `brmsmargins` package. We firstly load the dependent packages,
+
+```{r message=FALSE, warning=FALSE}
+library(brmsmargins)
+library(data.table)
+library(dplyr)
+library(ggplot2)
+```
+
+To fit the BMAM, we use the `bmam` function. 
+```{r}
+bmam <- bmam(object = model_brms, k=100, CIType="ETI", CI = 0.95)
+```
+where we pass pass the fitted GAMM `model_brms` to `bmam` function. Monte Carlo method is used to integrate out the random effects, and the we set the random draws as `k = 100` (default). The type of credible intervals (CI) can be specified by `CIType`. In this example, we use Equal-Tailed Interval, ETI (default). Please see [here](https://easystats.github.io/bayestestR/reference/ci.html) for more `CIType` options. The probability of CI is chosen as 95%. 
+
+
+
+### Summary model
+Let's now summary the fitted bmam. The `summary` function will return as a list of data frame. Each data frame contains the summary of posterior distribution of the coefficients of smooth functions $\alpha_l^{\mathrm{M}}$, such that $f_{l}^{\mathrm{M}}(x)=\sum_{q=1}^{Q_{l}} b_{l q}^{\mathrm{M}}(x) \alpha_{l q}^{\mathrm{M}}, l=1,\cdots,q$. 
+
+```{r}
+bmam.summary <- summary(bmam)
+
+knitr::kable(bmam.summary[[1]], digits = 3)
+knitr::kable(bmam.summary[[2]], digits = 3)
+```
+
+For each parameter, the `summary` function can return us the following information, 
+
++ M: the mean of the posterior samples
++ Mdn: the median of the posterior samples
++ LL: the lower limit of the credible interval
++ UL: the upper limit of the credible interval
++ CI: the probability of credible interval
++ CIType: the type of credible interval 
+
+The default dimension of coefficients $\alpha_l^{\mathrm{M}}$ is 10, i.e. $Q_{1} = Q_{2} = 10$ in this example. The first parameter $\alpha_{l 1}^{\mathrm{M}}$ is the intercept, and we only report the coefficients $\alpha_{l q}^{\mathrm{M}}, q=2,3,\cdots,Q_l$. 
+
+
+
+### Visualize the fitted model
+We also provide a `plot` function to visualize the estimated smooth functions, i.e. $\hat{f}^{\mathrm{M}}(\mathbf{X})$. 
+
+The `bmam` function will call the built in function `generate_pred` to generate the predicted function to illustrate the estimated smooth functions. 
+The predicted data are generated according to the model and data used to fit the model. In this example, we use the simulated data `simdata$data` to fit the model `bf(y ~  x3 + s(x1) + s(x2) + (1+x3|id))`. The function will generate 
+a sequence with length is 100 (default) from the minimum value of x1 to maximum value of x1 in `simdata$data`, denoted as $\tilde{X_1}$, and a sequence with length is 100 (default) from the minimum value of x2 to maximum value of x2 in `simdata$data`, denoted as $\tilde{X_2}$. the length of sequence can set as the other value by providing an argument `length`, for example, 
+```{r eval=FALSE}
+bmam(object = model_brms, k=100, CIType="ETI", CI = 0.95,
+     length = 200)
+```
+
+In addition, users can also provide a predicted data, for example,
+```{r eval=FALSE}
+bmam(object = model_brms, k=100, CIType="ETI", CI = 0.95,
+     preddat = user.preddat)
+```
+
+The `plot` function will show the plot of $\hat{f}^{\mathrm{M}}(X_1)$ and $\hat{f}^{\mathrm{M}}(X_2)$. 
+```{r}
+plot(bmam)
+```
+
+
+We could also provide the the true forms of smooth functions `simdata$f` 
+to the `plot` function to compare $\hat{f}^{\mathrm{M}}(\mathbf{X})$ and $f^{\mathrm{M}}(\mathbf{X})$,
+```{r}
+plot(bmam, smooth.function = simdata$f)
+```
+
+
+
+### Compare with other models
+
+The argument `compared.model` in `plot` function allows us to provide the other model compared with BMAM. 
+
+The supported models include 
+
++ Marginal additive model by `mam` package
++ Generalized additive mixed model by `mgcv` package
++ Bayesian generalized additive mixed model by `brms` package
+
+
+#### Marginal additive model
+
+The frequentist marginal additive model can be fitted by `mam` function in `mam`
+package [@mcgee2022flexible].
+The predicted data in the `mam` should the same as that we used in `bmam`. We could obtained the generated predicted data from the fitted bmam object by `bmam$Preddat`. 
+
+```{r message=FALSE, warning=FALSE}
+library(mam)
+library(mgcv)
+```
+
+```{r message=FALSE, warning=FALSE}
+themam <- mam(smooth = list(s(x1),s(x2)),
+                   re = y ~ (1+x3|id),
+                   fe = ~ x3,
+                   dat = dat,
+                   margdat = dat,
+                   preddat = bmam$Preddat,
+                   control = mam_control(
+                     method = 'trust',
+                     varmethod = 1,
+                     verbose = FALSE,
+                     retcond = TRUE))
+```
+
+```{r}
+plot(bmam, compared.model = themam, smooth.function = simdata$f)
+```
+
+
+#### Generalized additive mixed model
+
+We could also compare the bmam with conditional model. The `plot` function now support the Generalized additive mixed model by `mgcv` package and Bayesian generalized additive mixed model by `brms` package. 
+
+```{r}
+gam <- gam(y ~  x3 + s(x1) + s(x2),
+           data=dat,family=binomial(),method="REML")
+```
+
+```{r}
+plot(bmam, compared.model = gam, smooth.function = simdata$f)
+```
+
+
+
+```{r message=FALSE, warning=FALSE}
+bgam <- brm(bf(y ~  x3 + s(x1) + s(x2)), data = dat, 
+            family = "bernoulli", 
+            cores = 4, seed = 4321, warmup = 1000, 
+            iter = 2000, chains = 4,
+            refresh=0, backend = "cmdstanr")
+```
+
+```{r}
+plot(bmam, compared.model = bgam, smooth.function = simdata$f)
+```
+
+
+
+
+## References

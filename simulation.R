@@ -14,10 +14,10 @@ source("R/SimData.R")
 source("R/summary.R")
 source("R/plot.bmam.R")
 ### generate data #######################
+set.seed(1234)
 simdata <- SimData(100,10)
 dat <- simdata$data
 fun <- simdata$f
-
 
 
 
@@ -34,11 +34,11 @@ fun <- simdata$f
 ### Model #################### 
 
 ## BMAM
-if(TRUE){
+if(FALSE){
   # don't run. Very slow. use load("data/simu_brms.rds")
   model_brms <- brm(bf(y ~  x3 + s(x1) + s(x2) + (1+x3|id)),
-                    data = dat, family = "bernoulli", cores = 2, seed = 17,
-                    warmup = 1000, iter = 2000, chains = 2, refresh=0, backend = "cmdstanr")
+                    data = dat, family = "bernoulli", cores = 4, seed = 1234,
+                    warmup = 1000, iter = 2000, chains = 4, refresh=0, backend = "cmdstanr")
   # save(model_brms, file = "data/simu_brms.rds")
 }
 # load("data/simu_brms.rds")
@@ -63,8 +63,14 @@ themam <- mam::mam(smooth = list(s(x1),s(x2)),
                      verbose = FALSE,
                      retcond = TRUE))
 
-
-
+## bgam
+if(FALSE){
+  bgam <- brm(bf(y ~  x3 + s(x1) + s(x2)),
+                    data = dat, family = "bernoulli", cores = 4, seed = 1234,
+                    warmup = 1000, iter = 2000, chains = 4, refresh=0, backend = "cmdstanr")
+  # save(bgam, file = "data/simu_bgam.rds")
+}
+load("data/simu_bgam.rds")
 
 ### plot ##################
 ## plot set up
