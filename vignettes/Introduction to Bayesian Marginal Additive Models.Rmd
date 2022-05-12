@@ -3,12 +3,14 @@ title: "Introduction to Bayesian Marginal Additive Models"
 author: "Tianyi Pan"
 date: "`r Sys.Date()`"
 output: 
+  # pdf_document
   html_document:
     toc: true
     toc_float:
       collapsed: false
       smooth_scroll: true
     toc_depth: 3
+  
 bibliography: bibfile.bib  
 vignette: >
   %\VignetteIndexEntry{Introduction to Bayesian Marginal Additive Models}
@@ -41,7 +43,7 @@ source("R/SimData.R")
 In this document, we illustrate R functions for Bayesian marginal additive models (BMAM). 
 
 ## Brief overview of Bayesian marginal additive models
-@heagerty2000marginalized presented the marginal models in which the marginal mean, rather than the conditional mean given random effects, is regressed on covariates. Marginal models are useful when we are interested in associations averaged across a population of clusters. If the covariate-outcome association is unknown, we could use additive models to measure the potentially non-linear relationships. @mcgee2022flexible proposed a marginal additive model (MAM) for modeling dependent data with non-linear population-averaged associations. The R package [MAM](https://github.com/awstringer1/mam) is also available.
+@heagerty2000marginalized presented the marginal models in which the marginal mean, rather than the conditional mean given random effects, is regressed on covariates. Marginal models are useful when we are interested in associations averaged across a population of clusters. If the covariate-outcome association is unknown, we could use additive models to measure the potentially non-linear relationships. @mcgee2022flexible proposed a marginal additive model (MAM) for modeling dependent data with non-linear population-averaged associations. The [R package](https://github.com/awstringer1/mam) for MAM is available.
 
 We propose a Bayesian marginal additive model (BMAM) to extend the marginal additive model (MAM) into a Bayesian context. 
 
