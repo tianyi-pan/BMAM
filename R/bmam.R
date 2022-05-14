@@ -85,6 +85,12 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
     link = brmsmargins:::.extractlink(object, NULL),
     effects = "integrateoutRE", backtrans = backtrans)
   
+  ####### Conditional Model #########
+
+  CI <- ifelse(is.element("CI", list(...)), CI, 0.99) 
+  predict_conditional <- conditional_brms(object, preddat, CI)
+  
+  ####### Marginal Model #################
   # get the dataset in the model.
   mf <- model.frame(object)
   
@@ -150,7 +156,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
   
   
   out <- list(
-    # BRMS = NULL,
+    Conditional = NULL,
     Summary = NULL,
     Summary_para = NULL,
     Posterior = NULL,
@@ -163,7 +169,9 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
     Family = object$family,
     Formula = object$formula)
 
-  # out$BRMS <- object
+  out$Conditional <- list(Brms = object,
+                          Predicted = predict_conditional)
+                   
   if (isTRUE(summarize)) { # does not work for 
     out$Summary <- as.data.table(do.call(rbind, apply(beta, 1, bsummary, ...)))
     out$Summary[, Label := colnames(B)]

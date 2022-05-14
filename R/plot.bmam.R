@@ -10,7 +10,7 @@
 #' @return a list containing ggplot objects. 
 #' @import ggplot2
 #'
-plot.bmam <- function(object, compared.model, display = TRUE, smooth.function){
+plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE, smooth.function){
 
   preddat <- object$Preddat # pred data in object 
   
@@ -20,8 +20,10 @@ plot.bmam <- function(object, compared.model, display = TRUE, smooth.function){
 
   gg <- list( # list to store ggplot object
     BMAM = vector("list", length = length(plot_var)),
-    Compared.Model = vector("list", length = length(plot_var)),
-    Comparison = vector("list", length = length(plot_var))
+    Conditional = list(Conditional.Model = vector("list", length = length(plot_var)),
+                       Comparison = vector("list", length = length(plot_var))),
+    Compared.Model = list(Compared.Model = vector("list", length = length(plot_var)),
+                    Comparison = vector("list", length = length(plot_var)))
   )
 
   
@@ -46,6 +48,8 @@ plot.bmam <- function(object, compared.model, display = TRUE, smooth.function){
       ggtitle("BMAM")
     
     
+    
+    
     ## add true value to comparison
     if(!missingArg(smooth.function)){
       stopifnot(length(plot_var) == length(smooth.function))
@@ -57,6 +61,8 @@ plot.bmam <- function(object, compared.model, display = TRUE, smooth.function){
                             Method = rep(c("True Value"), each = length(index)))
       dfplotBoth <- rbind(dfplotT, dfplotM)
     }
+    
+    
     
     ## compared model
     if(!missingArg(compared.model)){
@@ -104,7 +110,10 @@ plot.bmam <- function(object, compared.model, display = TRUE, smooth.function){
         stop("the model is not supported yet.")
       }
       
-      gg$Compared.Model[[i]] <- ggplot(data=dfplotC,aes(x=x,y=fitted))+
+      
+      
+      
+      gg$Compared.Model$Compared.Model[[i]] <- ggplot(data=dfplotC,aes(x=x,y=fitted))+
         geom_ribbon(aes(ymin=lci,ymax=uci, fill=Method, colour= Method),alpha=0.2, size = 0.3)+
         geom_line(aes(colour = Method), size = 1)+
         xlab(var)+
@@ -112,6 +121,8 @@ plot.bmam <- function(object, compared.model, display = TRUE, smooth.function){
         scale_colour_manual(values = c("deepskyblue"), breaks = c(dfplotC$Method[1]))+
         scale_fill_manual(values = c("deepskyblue"), breaks = c(dfplotC$Method[1]))+
         ggtitle(as.character(dfplotC$Method[1]))
+      
+      
       
       dfplotBoth <- rbind(dfplotBoth,dfplotC)
     }
@@ -131,7 +142,7 @@ plot.bmam <- function(object, compared.model, display = TRUE, smooth.function){
     }
     
     if(exists("dfplotBoth")){
-      gg$Both[[i]] <- ggplot(data=dfplotBoth,aes(x=x,y=fitted, group=Method))+
+      gg$Compared.Model$Comparison[[i]] <- ggplot(data=dfplotBoth,aes(x=x,y=fitted, group=Method))+
         geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
         geom_line(aes(colour = Method), size = 1)+
         xlab(var)+
@@ -139,6 +150,48 @@ plot.bmam <- function(object, compared.model, display = TRUE, smooth.function){
         scale_colour_manual(values = values, breaks = breaks)+
         scale_fill_manual(values = values, breaks = breaks)+
         ggtitle("Comparison")
+      remove(dfplotBoth)
+    }
+    
+    ## conditional 
+    if(conditional){
+      conditional_predicted <- object$Conditional$Predicted ## results of conditional model
+      dfplotConditional <- data.frame(x = preddat[[var]][index],
+                                   fitted = conditional_predicted[index,1],
+                                   uci = conditional_predicted[index,4],
+                                   lci = conditional_predicted[index,3],
+                                   Method = rep(c("Conditional Model"), each = length(index)))
+      dfplotBoth <- rbind(dfplotM, dfplotConditional)
+      if(!missingArg(smooth.function)) dfplotBoth <- rbind(dfplotT, dfplotBoth)
+      
+      ## settings for ggplot
+      if(!missingArg(smooth.function)){
+        values <- c("black", "coral", "deepskyblue") 
+        breaks <- c("True Value", "BMAM", dfplotConditional$Method[1])
+      }else{
+        values <- c("coral", "deepskyblue") 
+        breaks <- c("BMAM", dfplotConditional$Method[1])
+      }
+      
+      gg$Conditional$Conditional.Model[[i]] <- ggplot(data=dfplotConditional,aes(x=x,y=fitted))+
+        geom_ribbon(aes(ymin=lci,ymax=uci, fill=Method, colour= Method),alpha=0.2, size = 0.3)+
+        geom_line(aes(colour = Method), size = 1)+
+        xlab(var)+
+        ylab(expression(f~(X)))+
+        scale_colour_manual(values = c("deepskyblue"), breaks = c(dfplotConditional$Method[1]))+
+        scale_fill_manual(values = c("deepskyblue"), breaks = c(dfplotConditional$Method[1]))+
+        ggtitle(as.character(dfplotConditional$Method[1]))
+      
+      
+      gg$Conditional$Comparison[[i]] <- ggplot(data=dfplotBoth,aes(x=x,y=fitted, group=Method))+
+        geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
+        geom_line(aes(colour = Method), size = 1)+
+        xlab(var)+
+        ylab(expression(f~(X))) + 
+        scale_colour_manual(values = values, breaks = breaks)+
+        scale_fill_manual(values = values, breaks = breaks)+
+        ggtitle("Marginal v.s. Conditional")
+      
       remove(dfplotBoth)
     }
   }
@@ -149,8 +202,25 @@ plot.bmam <- function(object, compared.model, display = TRUE, smooth.function){
   if(display){
     oask <- devAskNewPage(TRUE)
     on.exit(devAskNewPage(oask))
-    gg_display <- gg
-    if(!is.null(gg$Both)) gg_display <- list(gg$Both)
+    
+    ## choose which plot will be shown
+    if(!is.null(gg$Compared.Model$Comparison[[1]])){
+      
+      if(conditional){
+        gg_display <- list(gg$Conditional$Comparison, gg$Compared.Model$Comparison)
+      }else{
+        gg_display <- list(gg$Compared.Model$Comparison)
+      }
+      
+    } else{
+      
+      if(conditional){
+        gg_display <- list(gg$Conditional$Comparison)
+      }else{
+        gg_display <- list(gg$BMAM)
+      }
+
+    }
     for (gg_model in gg_display){
       for (gg_i in gg_model) {
         if(!is.null(gg_i)){

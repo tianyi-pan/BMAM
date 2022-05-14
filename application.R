@@ -12,6 +12,7 @@ source("R/prediction.R")
 source("R/generate_pred.R")
 source("R/plot.bmam.R")
 source("R/summary.R")
+source("R/conditional_brms.R")
 ### data ################
 
 data(beavers)
@@ -50,8 +51,7 @@ plot(
 )
 
 bmam <- bmam(object = brms_model, centered = FALSE,
-                   CI = 0.95, CIType="ETI", posterior = T)
-bmam
+                    CIType="ETI", posterior = T)
 
 beaverspred <- bmam$Preddat
 
@@ -125,6 +125,7 @@ theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_bla
 
 
 ## plot using plot.bmam function
+gg <- plot(bmam,display = F)
 gg <- plot(object = bmam, compared.model = gam, display = FALSE)
 
 
