@@ -1,4 +1,3 @@
-### compare with frequentist MAM 
 ### load packages #####################
 library(mam)
 library(mgcv)

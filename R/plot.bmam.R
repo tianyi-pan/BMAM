@@ -5,8 +5,9 @@
 #'                       supported models: 1. mam
 #'                                         2. gam
 #'                                         3. brms gam
-#' @param display TRUE: display the plot.  
-#'
+#' @param display Whether or not to display the plot. Default: TRUE
+#' @param conditional Whether or not to plot the conditional model. Default: TRUE 
+#' @param smooth.function A list. True value of the smooth functions. 
 #' @return a list containing ggplot objects. 
 #' @import ggplot2
 #'
@@ -204,7 +205,7 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
     on.exit(devAskNewPage(oask))
     
     ## choose which plot will be shown
-    if(!is.null(gg$Compared.Model$Comparison[[1]])){
+    if(!missingArg(compared.model)){
       
       if(conditional){
         gg_display <- list(gg$Conditional$Comparison, gg$Compared.Model$Comparison)
@@ -233,5 +234,6 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
 
     devAskNewPage(oask)
   }
+  
   invisible(gg)
 }
