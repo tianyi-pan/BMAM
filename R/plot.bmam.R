@@ -17,7 +17,10 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
   
   plot_var <- unique(preddat$varname) # smooth term
   
-
+  if(object$Centered){
+    if((!missingArg(compared.model)) || (!missingArg(smooth.function))) 
+      message("BMAM is centered.")
+  }
 
   gg <- list( # list to store ggplot object
     BMAM = vector("list", length = length(plot_var)),
@@ -55,10 +58,21 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
     if(!missingArg(smooth.function)){
       stopifnot(length(plot_var) == length(smooth.function))
       fun <- smooth.function[[i]]
+
+      truevalue <- fun(preddat[[var]])
+      if(bmam$Centered){
+        # projection
+        ones <- matrix(rep(1,length(truevalue)))
+        H_matrix <- ones %*% solve(t(ones) %*% ones) %*% t(ones)
+        M_matrix <- diag(1,length(truevalue)) - H_matrix
+        truevalue <- M_matrix %*% truevalue
+      }
+
+      
       dfplotT <- data.frame(x = preddat[[var]][index],
-                            fitted = fun(preddat[[var]][index]),
-                            uci = fun(preddat[[var]][index]),
-                            lci = fun(preddat[[var]][index]),
+                            fitted = truevalue[index],
+                            uci = truevalue[index],
+                            lci = truevalue[index],
                             Method = rep(c("True Value"), each = length(index)))
       dfplotBoth <- rbind(dfplotT, dfplotM)
     }
@@ -154,14 +168,15 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
       remove(dfplotBoth)
     }
     
-    ## conditional 
+    ## conditional ###############
     if(conditional){
+      
       conditional_predicted <- object$Conditional$Predicted ## results of conditional model
       dfplotConditional <- data.frame(x = preddat[[var]][index],
-                                   fitted = conditional_predicted[index,1],
-                                   uci = conditional_predicted[index,4],
-                                   lci = conditional_predicted[index,3],
-                                   Method = rep(c("Conditional Model"), each = length(index)))
+                                      fitted = conditional_predicted$M[index],
+                                      uci = conditional_predicted$UL[index],
+                                      lci = conditional_predicted$LL[index],
+                                      Method = rep(c("Conditional Model"), each = length(index)))
       dfplotBoth <- rbind(dfplotM, dfplotConditional)
       if(!missingArg(smooth.function)) dfplotBoth <- rbind(dfplotT, dfplotBoth)
       

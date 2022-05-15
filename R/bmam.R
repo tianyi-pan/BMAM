@@ -87,8 +87,8 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
   
   ####### Conditional Model #########
 
-  CI <- ifelse(is.element("CI", list(...)), CI, 0.99) 
-  predict_conditional <- conditional_brms(object, preddat, CI)
+  # CI <- ifelse(is.element("CI", list(...)), CI, 0.99) 
+  predict_conditional <- conditional_brms(object, preddat, centered = centered, ...)
   
   ####### Marginal Model #################
   # get the dataset in the model.
@@ -167,7 +167,8 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
     Predicted_Summary = NULL,
     Predicted = NULL,
     Family = object$family,
-    Formula = object$formula)
+    Formula = object$formula,
+    Centered = centered)
 
   out$Conditional <- list(Brms = object,
                           Predicted = predict_conditional)
@@ -193,9 +194,6 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
     
     if(!missingArg(preddat)){
 
-      # fe_formula <- object$formula$formula[[3]][[2]][[2]]
-      # fe_formula <- as.formula(paste0("y~", paste(as.character(fe_formula)[as.character(fe_formula)!="+"], collapse='+')))
-      # 
 
       object <- restructure(object)
       prep <- prepare_predictions(object, newdata = preddat,check_response = FALSE, re_formula = NA)
@@ -209,56 +207,15 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
       
       ## X: linear term, for example intercept + x1 + x2 + x1:x2
       pred_X <- prep$dpars$mu$fe$X
-      
-      
-      # pred_standata <- make_standata(fe_formula, data = preddat)
-      
-      # pred_data_names <- names(pred_standata) # get the names of data
-
-      # pred_Zs_name <- pred_data_names[grep(pattern = "Zs_\\d_\\d", pred_data_names)]
-      # pred_Zs <- do.call(cbind, pred_standata[pred_Zs_name])
-      
-      ## set names for Zs
-      # Zs_name_list <- mapply(function(i,j) paste(j,seq_len(i),sep="_alpha_"), 
-      #                        lapply(pred_standata[pred_Zs_name],ncol), # number of basis function
-      #                        pred_Zs_name,
-      #                        SIMPLIFY = FALSE)
-      # colnames(pred_Zs) <- as.character(unlist(Zs_name_list))
-      
-      
-      ## Xs: basis function for smooth term, without penalty (ncol = 1)
-      # pred_Xs_name <- pred_data_names[grep(pattern = "Xs", pred_data_names)]
-      # pred_Xs <- do.call(cbind, pred_standata[pred_Xs_name])
-      # ## set names for Xs
-      # Xs_name_list <- mapply(function(i,j) paste(j,seq_len(i),"alpha",sep="_"), 
-      #                        lapply(pred_standata[pred_Xs_name],ncol), # number of basis function
-      #                        pred_Xs_name)
-      # colnames(pred_Xs) <- as.character(unlist(Xs_name_list))
-      
-      
-      
-      ## X: linear term, for example intercept + x1 + x2 + x1:x2
-      # pred_X <- pred_standata$X
-      ## design matrix
-      
-      
-      
       pred_B <- cbind(pred_X, pred_Xs, pred_Zs)
       
       if(centered) pred_B <- sweep(pred_B,2,colMeans(pred_B),'-') # Return centered smooths.
-      
-      
-      
-      # Bname <- mapply(c, as.list(Xs_name_list), Zs_name_list) # variable names for basis function.
-      ## estimate the smooth function by B*\alpha
-      # if(!is.list(Bname)){ # convert Bname to a list
-      #   Bname <- lapply(seq_len(ncol(Bname)), function(i) Bname[,i])
-      # }
-      # smooth_pred <- lapply(Bname, function(name)pred_B[,name] %*% beta[name, ])
-      # names(smooth_pred) <- paste0("f",seq_along(Bname))
-      # out$smooth_pred <- smooth_pred
-      
-      ## only consider column without 0. 
+      ## projection 
+      ## the same as  sweep(pred_B,2,colMeans(pred_B),'-') 
+      # ones <- matrix(rep(1,nrow(pred_B)))
+      # H_matrix <- ones %*% solve(t(ones) %*% ones) %*% t(ones)
+      # M_matrix <- diag(1,nrow(pred_B)) - H_matrix
+      # pred_B <- M_matrix %*% pred_B
       
       Predicted <- pred_B %*% beta
       out$Predicted <- Predicted
@@ -270,6 +227,6 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
     out$Preddat <- preddat
   }
 
-  structure(out, class = "bmam")
+  structure(out, class = "bmam") # S3 class
   # return(out)
 }

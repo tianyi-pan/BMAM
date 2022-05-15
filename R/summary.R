@@ -46,7 +46,10 @@ summary.bmam <- function(x, plot_smooth = FALSE, ...){
   smooth_est <- vector("list",length = length(x$Bname))
   for(i in seq_along(x$Bname)){
     names1 <- variables[grep(pattern = paste0("bs_s",as.character(smterm[[2]][[i+1]][[2]])," *"), variables)]
-    names2<- variables[grep(pattern = paste0("zs_",as.character(i),"_\\d *"), variables)]
+    names2<- variables[grep(pattern = paste0("^s_s",as.character(smterm[[2]][[i+1]][[2]]),"_\\d *"), variables)]
+    
+    variables[grep(pattern = paste0("^s_s *"), variables)]
+    
     names <- c(names1,names2)
     smooth <- post[, names]
     smooth_est_i <- as.data.table(do.call(rbind,
