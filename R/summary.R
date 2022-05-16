@@ -80,12 +80,13 @@ summary.bmam <- function(x, plot_smooth = FALSE, ...){
   
   out <- list(BMAM = BMAM,
               Conditional_Model = Conditional_Model)
+  options(digits=3)
   cat("\n Marginal Model \n")
-  print(BMAM$Linear)
+  print(out$BMAM$Linear)
   cat("\n Conditional Model \n")
-  print(Conditional_Model$Linear)
+  print(out$Conditional_Model$Linear)
   
-  if(!is.null(list(...))) plot_smooth <- TRUE
+  if(length(list(...)) != 0) plot_smooth <- TRUE
   if(plot_smooth){
     gg <- plot(x, ... )
     out$plot <- gg
