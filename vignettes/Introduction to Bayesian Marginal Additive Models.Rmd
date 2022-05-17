@@ -433,7 +433,7 @@ themam.centered <- mam(smooth = list(s(x1),s(x2)),
                      verbose = FALSE,
                      retcond = TRUE))
 ```
-Then, we can draw the plots by `plot` function introduced above to compare the centered smooth terms in BMAM, the conditional model, and MAM. 
+Then, we can draw the plots by `plot` function introduced above to compare the centered smooth terms in BMAM, the conditional model and MAM. 
 ```{r}
 plot(bmam.fit.centered, compared.model = themam.centered)
 ```
