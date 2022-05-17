@@ -12,7 +12,7 @@
 #' @import ggplot2
 #'
 plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE, smooth.function){
-
+  
   preddat <- object$Preddat # pred data in object 
   
   plot_var <- unique(preddat$varname) # smooth term
@@ -21,27 +21,27 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
     if((!missingArg(compared.model)) || (!missingArg(smooth.function))) 
       message("BMAM is centered.")
   }
-
+  
   gg <- list( # list to store ggplot object
     BMAM = vector("list", length = length(plot_var)),
     Conditional = list(Conditional.Model = vector("list", length = length(plot_var)),
                        Comparison = vector("list", length = length(plot_var))),
     Compared.Model = list(Compared.Model = vector("list", length = length(plot_var)),
-                    Comparison = vector("list", length = length(plot_var)))
+                          Comparison = vector("list", length = length(plot_var)))
   )
-
   
-
+  
+  
   for(i in seq_along(plot_var)){
     var <- plot_var[i]
     index <- which(preddat$varname == var)
     
-
+    
     dfplotM <- data.frame(x = preddat[[var]][index],
-                                        fitted = object$Predicted_Summary$M[index],
-                                        uci = object$Predicted_Summary$UL[index],
-                                        lci = object$Predicted_Summary$LL[index],
-                                        Method = rep(c("BMAM"), each = length(index)))
+                          fitted = object$Predicted_Summary$M[index],
+                          uci = object$Predicted_Summary$UL[index],
+                          lci = object$Predicted_Summary$LL[index],
+                          Method = rep(c("BMAM"), each = length(index)))
     gg$BMAM[[i]] <- ggplot(data=dfplotM,aes(x=x,y=fitted))+
       geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
       geom_line(aes(colour = Method), size = 1)+
@@ -58,16 +58,18 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
     if(!missingArg(smooth.function)){
       stopifnot(length(plot_var) == length(smooth.function))
       fun <- smooth.function[[i]]
-
+      
       truevalue <- fun(preddat[[var]])
-      if(bmam$Centered){
-        # projection
-        ones <- matrix(rep(1,length(truevalue)))
-        H_matrix <- ones %*% solve(t(ones) %*% ones) %*% t(ones)
-        M_matrix <- diag(1,length(truevalue)) - H_matrix
-        truevalue <- M_matrix %*% truevalue
-      }
-
+      
+      ## ********** Question? ***************
+      # if(bmam$Centered){
+      #   # projection
+      #   ones <- matrix(rep(1,length(truevalue)))
+      #   H_matrix <- ones %*% solve(t(ones) %*% ones) %*% t(ones)
+      #   M_matrix <- diag(1,length(truevalue)) - H_matrix
+      #   truevalue <- M_matrix %*% truevalue
+      # }
+      
       
       dfplotT <- data.frame(x = preddat[[var]][index],
                             fitted = truevalue[index],
@@ -93,7 +95,7 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
                               uci = mam.uci[index],
                               lci = mam.lci[index],
                               Method = rep(c("MAM"), each = length(index)))
-      
+        
       }else if(class(compared.model)[1] == "gam"){
         ## GAM model
         gamfit <- predict(compared.model,newdata=preddat,se.fit=TRUE)
@@ -108,11 +110,11 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
                               uci = gam.uci[index],
                               lci = gam.lci[index],
                               Method = rep(c("GAM"), each = length(index)))
-      
+        
       }else if(class(compared.model)[1] == "brmsfit"){
         ## brms model 
         brms_posterior <- fitted(compared.model, newdata = preddat, 
-                                  summary = FALSE, scale = "linear")
+                                 summary = FALSE, scale = "linear")
         brms_summary <- as.data.table(do.call(rbind,
                                               apply(brms_posterior, 2, function(post.) do.call("bsummary",c(list(x = post.), object$Summary_para)))))
         dfplotC <- data.frame(x = preddat[[var]][index],
@@ -164,7 +166,7 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
         ylab(expression(f~(X))) + 
         scale_colour_manual(values = values, breaks = breaks)+
         scale_fill_manual(values = values, breaks = breaks)+
-        ggtitle("Comparison")
+        ggtitle("BMAM v.s. Compared.Model")
       remove(dfplotBoth)
     }
     
@@ -206,7 +208,7 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
         ylab(expression(f~(X))) + 
         scale_colour_manual(values = values, breaks = breaks)+
         scale_fill_manual(values = values, breaks = breaks)+
-        ggtitle("Marginal v.s. Conditional")
+        ggtitle("BMAM v.s. Conditional Model")
       
       remove(dfplotBoth)
     }
@@ -235,7 +237,7 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
       }else{
         gg_display <- list(gg$BMAM)
       }
-
+      
     }
     for (gg_model in gg_display){
       for (gg_i in gg_model) {
@@ -246,7 +248,7 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
         }
       }    
     }
-
+    
     devAskNewPage(oask)
   }
   
