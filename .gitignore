@@ -1,2 +1,4 @@
 *.rdb
 vignettes/*.rdb
+vignettes/Introduction-to-Bayesian-Marginal-Additive-Models_cache/html/*.rbd
+vignettes/Introduction-to-Bayesian-Marginal-Additive-Models_cache/latex/*.rbd
