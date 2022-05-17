@@ -13,6 +13,7 @@ source("R/SimData.R")
 source("R/summary.R")
 source("R/plot.bmam.R")
 source("R/conditional_brms.R")
+# source("R/GenBinaryY.R")
 ### generate data #######################
 set.seed(4321)
 simdata <- SimData(100,10)
