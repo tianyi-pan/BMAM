@@ -1,6 +1,8 @@
+.Rhistory
 *.rdb
 vignettes/*.rdb
 vignettes/Introduction-to-Bayesian-Marginal-Additive-Models_cache/html/*
 vignettes/Introduction-to-Bayesian-Marginal-Additive-Models_cache/latex/*
 vignettes/Introduction-to-Bayesian-Marginal-Additive-Models_files/html/*
 vignettes/Introduction-to-Bayesian-Marginal-Additive-Models_files/latex/*
+vignettes/.Rhistory
