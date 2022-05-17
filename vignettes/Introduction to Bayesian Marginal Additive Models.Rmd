@@ -3,14 +3,13 @@ title: "Introduction to Bayesian Marginal Additive Models"
 author: "Tianyi Pan"
 date: "`r Sys.Date()`"
 output: 
+  # pdf_document
+  
   html_document:
     toc: true
     toc_float:
       collapsed: false
       smooth_scroll: true
-    toc_depth: 3
-  pdf_document:
-    toc: TRUE
     toc_depth: 3
 bibliography: bibfile.bib  
 vignette: >
@@ -28,8 +27,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   cache = TRUE,
   fig.width = 5,
-  fig.height = 3.5, 
-  fig.align ='center'
+  fig.height = 3.5 
 )
 knitr::opts_knit$set(root.dir = "/Users/pantianyi/Documents/Research/Bayesian MAM/BMAM")
 ```
@@ -37,7 +35,6 @@ knitr::opts_knit$set(root.dir = "/Users/pantianyi/Documents/Research/Bayesian MA
 ```{r include=FALSE}
 ## source code
 source("R/bmam.R")
-source("R/conditional_brms.R")
 source("R/prediction.R")
 source("R/generate_pred.R")
 source("R/plot.bmam.R")
@@ -57,9 +54,10 @@ interested in associations averaged across a population of clusters. If
 the covariate-outcome association is unknown, we could use additive
 models to measure the potentially non-linear relationships.
 @mcgee2022flexible proposed a marginal additive model (MAM) for modeling
-dependent data with non-linear population-averaged associations.
+dependent data with non-linear population-averaged associations. The [R
+package](https://github.com/awstringer1/mam) for MAM is available.
 
-We propose a Bayesian marginal additive model (BMAM) extending the
+We propose a Bayesian marginal additive model (BMAM) to extend the
 marginal additive model (MAM) into a Bayesian context.
 
 ### Bayesian conditional models
@@ -70,7 +68,8 @@ $$ where $i = 1,\cdots,N$ indexes clusters and $j = 1, \cdots, n_i$
 indexes units within clusters. Random effects $\boldsymbol{u}_{i}$
 follow a normal distribution with mean 0 and covariance matrix
 $\boldsymbol{\Sigma}=\boldsymbol{\Lambda}\left(\boldsymbol{\sigma}\right) \boldsymbol{\Omega} \boldsymbol{\Lambda}\left(\boldsymbol{\sigma}\right)$,
-where $\boldsymbol{\Lambda}\left(\boldsymbol{\sigma}\right)$ denotes the diagonal matrix with diagonal elements $\boldsymbol{\sigma}$.
+where $\boldsymbol{\Lambda}\left(\boldsymbol{\sigma}\right)$ denoted the
+the diagonal matrix with diagonal elements $\boldsymbol{\sigma}$.
 
 $f_{l}^{\mathrm{C}}(x)=\sum_{q=1}^{d_{l}} b_{l q}^{\mathrm{C}}(x) \alpha_{l q}^{\mathrm{C}}$
 are unknown smooth functions. Each
@@ -97,9 +96,8 @@ g\left\{\mu^{\mathrm{C}}\left(\boldsymbol{x}_{i j}, \boldsymbol{z}_{i j} \mid \b
 \boldsymbol{u}_{i} &\sim \mathrm{N}(0,\boldsymbol{\Lambda}\left(\boldsymbol{\sigma}\right) \boldsymbol{\Omega} \boldsymbol{\Lambda}\left(\boldsymbol{\sigma}\right)),\\
 \alpha_{l k}^{*\mathrm{C}} &\sim \mathrm{N}(0,\frac{1}{\tau_{l}}), k=3,\cdots,d_{l}. 
 \end{aligned}
-$$ 
-Besides the two parameters $\boldsymbol{u}_{i}$ and
-$\alpha_{l k}^{*\mathrm{C}},k=3,\cdots,d_{l}$, in a Bayesian model, we
+$$ Besides the two parameters $\boldsymbol{u}_{i}$ and
+$\alpha_{l k}^{*\mathrm{C}},k=3,\cdots,d_{l}$, in Bayesian model, we
 need to assign prior distributions for
 $\alpha_{l 1}^{*\mathrm{C}},\alpha_{l 2}^{*\mathrm{C}}$, $\tau_l$,
 $\boldsymbol{\sigma}$ and $\boldsymbol{\Omega}$.
@@ -107,15 +105,15 @@ $\boldsymbol{\sigma}$ and $\boldsymbol{\Omega}$.
 Our `bmam` functions are built on `brms` package. The prior
 distributions can be set in `brms` function. By default,
 $\alpha_{l 1}^{*\mathrm{C}},\alpha_{l 2}^{*\mathrm{C}}$ have an improper
-flat prior, and $\sqrt{1/\tau_l}$, the standard deviation in prior
-distribution of $\boldsymbol{u}_{i}$, has a half student-t prior with 3
+flat prior, $\sqrt{1/\tau_l}$, the standard deviation in prior
+distribution of $\boldsymbol{u}_{i}$, have a half student-t prior with 3
 degree of freedom. The prior distribution of $\boldsymbol{\sigma}$ is
 also half student-t prior with 3 degree of freedom, and
 $\Omega \sim \operatorname{LKJ}(1)$.
 
 ### Bayesian marginal additive models
 
-The Bayesian marginal additive model (BMAM) is, $$
+The Bayesian marginal additive models (BMAM) is, $$
 g\left\{\mu^{\mathrm{M}}\left(\boldsymbol{x}_{i j}\right)\right\}=f^{\mathrm{M}}\left(\boldsymbol{x}_{i j}\right)
 $$ where
 $f^{\mathrm{M}}\left(\boldsymbol{x}_{i j}\right) = \sum_{l=1}^{p} f_{l}^{\mathrm{M}}\left(x_{i j l}\right) = \sum_{l=1}^{p}\sum_{q=1}^{Q_{l}} b_{l q}^{\mathrm{M}}(x) \alpha_{l q}^{\mathrm{M}}$.
@@ -125,33 +123,30 @@ Bayesian conditional model through post-hoc marginalization
 additive models and conditional models can be found in
 @mcgee2022flexible.
 
-In practice, we could draw the posterior samples in conditional models. For each posterior sample, an estimate of
+In practice, we could draw the posterior samples in conditional models
+by `brms` function. For each posterior sample, an estimate of
 $\alpha_{lq}^{\mathrm{M}}$ could be calculated. Assuming $H$ samples are
-drawn from posterior distribution in a conditional model, we could
+drawn from posterior distribution in the conditional model, we could
 obtain $H$ estimates of $\alpha_{lq}^{\mathrm{M}}$, and then make an
-inference on $\alpha_{lq}^{\mathrm{M}}$.
+inference on $\alpha_{lq}^{\mathrm{M}}$ by the $H$ estimates.
 
 ## Basic example of Bayesian marginal additive models
 
 We use the function `SimData` to generate some data, to illustrate the
 main features of our R functions for BMAM. The data are generated
-according to the set-up in @mcgee2022flexible. We consider the binary
+according to the set up in @mcgee2022flexible. We consider the binary
 case, where the outcome variable $Y$ follows a Bernoulli distribution.
-The link function $g(\cdot)$ is set as the logit function.
+The link function $g(\cdot)$ is set as logit function.
 
 We generate three covariates
 $\boldsymbol{x}_{i j}=\left(x_{i j 1}, x_{i j 2}, x_{i j 3}\right)^{\mathrm{T}}$
 where $x_{i j p} \sim \operatorname{Unif}(-1,1)$ for $p=1,2,3$. After
 assuming the forms of smooth functions $f_{1}^{\mathrm{M}}(\cdot)$ and
 $f_{2}^{\mathrm{M}}(\cdot)$, we could generate $Y_{ij}$ according to the
-marginal model, 
-
-$$
+marginal model, $$
 \operatorname{logit}\left\{\mu^{\mathrm{M}}\left(\boldsymbol{x}_{i j}\right)\right\}=f_{1}^{\mathrm{M}}\left(x_{i j 1}\right)+f_{2}^{\mathrm{M}}\left(x_{i j 2}\right)+\beta_{3} \cdot x_{i j 3}.
-$$ 
-In addition, we have the following random intercepts and slopes
+$$ In addition, we have the following random intercepts and slopes
 dependence structure,
-
 
 $$
 \begin{aligned}
@@ -169,10 +164,9 @@ u_{i 1}
 \end{aligned}
 $$
 
-
 Here we set $\beta_3 = 0$, the number of cluster $N = 100$ and the
 number of units within clusters
-$n_i = 10, i = 1, \ldots, N$.
+$n_i = 10, \forall i \in\{1, \ldots, N\}$.
 
 ```{r}
 set.seed(4321)
@@ -180,10 +174,10 @@ simdata <- SimData(K = 100, Nk = 10)
 dat <- simdata$data
 fun <- simdata$f
 
-knitr::kable(head(dat), digits = 4)
+head(dat)
 ```
 
-where `simdata$data` is the generated dataset and `simdata$f` is the
+where `simdata$data` is the dataset we generate and `simdata$f` is the
 smooth functions $f_{1}^{\mathrm{M}}(\cdot)$ and
 $f_{2}^{\mathrm{M}}(\cdot)$.
 
@@ -215,9 +209,9 @@ model_brms <- brm(bf(y ~  x3 + s(x1) + s(x2) + (1+x3|id)),
 ```
 
 The setting of `brm` function can be found in @burkner2017brms. We use
-`bf()` to specify a formula containing smooth terms and random effects.
+`bf()` to specify a formula containing smooth term and random effects.
 The GAMM is specified as a logistic model and we sample 4 chains with
-2000 iterations (the first 1000 iterations are warm-up). It should be noted
+2000 iterations (the first 1000 iterations are warm-up). It should noted
 that our `BMAM` functions only support the [`cmdstanr`
 backend](https://mc-stan.org/cmdstanr/).
 
@@ -241,30 +235,34 @@ library(ggplot2)
 To fit the BMAM, we use the `bmam` function.
 
 ```{r}
-bmam.fit <- bmam(object = model_brms, k=100, CIType="ETI", CI = 0.95)
+bmam <- bmam(object = model_brms, k=100, CIType="ETI", CI = 0.95)
 ```
 
-Monte Carlo method is used to integrate out the random
+where we pass pass the fitted GAMM object `model_brms` to `bmam`
+function. Monte Carlo method is used to integrate out the random
 effects, and we set the random draws as `k = 100` (default). The type of
 credible intervals (CI) can be specified by `CIType`. In this example,
 we use Equal-Tailed Interval, ETI (default). Please see
 [here](https://easystats.github.io/bayestestR/reference/ci.html) for
-more `CIType` options supported in this function. The probability of CI is chosen as 95%.
+more `CIType` options. The probability of CI is chosen as 95%.
 
 ### Summarize model
 
-Let's now summarize the fitted BMAM. 
+Let's now summarize the fitted BMAM. The `summary` function will return
+a list of data frame. Each data frame contains the summary of posterior
+distribution of the coefficients of smooth functions
+$\alpha_l^{\mathrm{M}}$, such that
+$f_{l}^{\mathrm{M}}(x)=\sum_{q=1}^{Q_{l}} b_{l q}^{\mathrm{M}}(x) \alpha_{l q}^{\mathrm{M}}, l=1,\cdots,q$.
 
-The `summary` function will return
-a list of data frames. Each data frame contains the summary of posterior
-distribution of the coefficients in linear terms, e.g. Intercept and $X_3$ in this example. 
-
-The first dataframe is for the estimates in marginal model (BMAM), and the second is for the estimates in conditional model (Bayesian GAMM).
 ```{r}
-bmam.summary <- summary(bmam.fit)
+bmam.summary <- summary(bmam)
+
+knitr::kable(bmam.summary[[1]], digits = 3)
+knitr::kable(bmam.summary[[2]], digits = 3)
 ```
 
-For each parameter, the returned information include,
+For each parameter, the `summary` function can return us the following
+information,
 
 -   M: the mean of the posterior samples
 -   Mdn: the median of the posterior samples
@@ -273,48 +271,28 @@ For each parameter, the returned information include,
 -   CI: the probability of credible interval
 -   CIType: the type of credible interval
 
-
-If we are also interested in the smooth functions, we can set `plot_smooth` as `TRUE` to plot the estimated smooth functions, 
-```{r}
-bmam.summary <- summary(bmam.fit, plot_smooth = TRUE)
-```
-
-In the figures, we demontrate the point estimates (mean of the posterior samples) and 95% CI (ETI). The red one denotes the estimates from BMAM. The blue one denotes the estimates from Bayesian GAMM (conditional model).
-
-The results from `summary` function also provide the summary of coefficients in smooth terms $\alpha_l^{\mathrm{M}}$ in BMAM and smooth terms $\alpha_l^{\mathrm{C}}$ in Bayesian GAM.
-
-The default dimension of coefficients $\alpha_l^{\mathrm{M}}$ (or $\alpha_l^{\mathrm{C}}$) is 10, i.e. $Q_{1} = Q_{2} = 10$ in this example. The first parameter $\alpha_{l 1}^{\mathrm{M}}$ (or $\alpha_{l 1}^{\mathrm{C}}$) is the intercept, and we only report the
-coefficients $\alpha_{l q}^{\mathrm{M}}, \alpha_{l q}^{\mathrm{C}}, q=2,3,\cdots,Q_l$.
-
-The coefficients in smooth terms in BMAM,
-```{r}
-knitr::kable(bmam.summary$BMAM$Smooth[[1]], digits = 4)
-knitr::kable(bmam.summary$BMAM$Smooth[[2]], digits = 4)
-```
-
-The coefficients in smooth terms in Bayesian GAMM (conditional model),
-```{r}
-knitr::kable(bmam.summary$Conditional_Model$Smooth[[1]], digits = 4)
-knitr::kable(bmam.summary$Conditional_Model$Smooth[[2]], digits = 4)
-```
-
-
-
-
+The default dimension of coefficients $\alpha_l^{\mathrm{M}}$ is 10,
+i.e. $Q_{1} = Q_{2} = 10$ in this example. The first parameter
+$\alpha_{l 1}^{\mathrm{M}}$ is the intercept, and we only report the
+coefficients $\alpha_{l q}^{\mathrm{M}}, q=2,3,\cdots,Q_l$.
 
 ### Visualize model
 
-Beside the figures from `summary` function, we also provide a `plot` function to visualize the estimated smooth
-functions.
+We also provide a `plot` function to visualize the estimated smooth
+functions, i.e. $\hat{f}^{\mathrm{M}}(\mathbf{X})$.
 
-The `bmam` function will call the built-in function `generate_pred` to
-generate the predicted data to illustrate the estimated smooth
+The `bmam` function will call the built in function `generate_pred` to
+generate the predicted function to illustrate the estimated smooth
 functions. The predicted data are generated according to the model and
-the data for model fitting. In this example, we use the simulated data
+data used to fit the model. In this example, we use the simulated data
 `simdata$data` to fit the model
 `bf(y ~  x3 + s(x1) + s(x2) + (1+x3|id))`. The function will generate a
-sequence with length 100 (default) from the minimum value of `x1` to
-the maximum value of `x1` in `simdata$data` and a sequence with length is 100 (default) from the minimum value of `x2` to the maximum value of `x2` in `simdata$data`. The length of sequence can be set as the other values by  argument `length`, for example,
+sequence with length is 100 (default) from the minimum value of `x1` to
+maximum value of `x1` in `simdata$data`, denoted as $\tilde{X_1}$, and a
+sequence with length is 100 (default) from the minimum value of `x2` to
+maximum value of `x2` in `simdata$data`, denoted as $\tilde{X_2}$. The
+length of sequence can be set as the other value by passing to argument
+`length`, for example,
 
 ```{r eval=FALSE}
 bmam(object = model_brms, k=100, CIType="ETI", CI = 0.95,
@@ -328,35 +306,38 @@ bmam(object = model_brms, k=100, CIType="ETI", CI = 0.95,
      preddat = user.preddat)
 ```
 
-The `plot` function will show the plots of the estimated smooth functions in BMAM and the conditional model (Bayesian GAMM). If users want to plot the BMAM only, please add an argument `conditional = FALSE`. 
+The `plot` function will show the plot of $\hat{f}^{\mathrm{M}}(X_1)$
+and $\hat{f}^{\mathrm{M}}(X_2)$.
+
 ```{r}
-plot(bmam.fit)
+plot(bmam)
 ```
 
-
-We could also provide the true forms of smooth functions `simdata$f` to the `plot` function to compare the fitted values and true values,
+We could also provide the the true forms of smooth functions `simdata$f`
+to the `plot` function to compare $\hat{f}^{\mathrm{M}}(\mathbf{X})$ and
+$f^{\mathrm{M}}(\mathbf{X})$,
 
 ```{r}
-plot(bmam.fit, smooth.function = simdata$f)
+plot(bmam, smooth.function = simdata$f)
 ```
 
 ### Compare with other models
 
 The argument `compared.model` in `plot` function allows us to provide
-the other models compared with BMAM and the conditional model.
+the other model compared with BMAM.
 
 The supported models include
 
--   Marginal additive models by `mam` package
--   Generalized additive models by `mgcv` package
--   Bayesian generalized additive models by `brms` package
+-   Marginal additive model by `mam` package
+-   Generalized additive model by `mgcv` package
+-   Bayesian generalized additive model by `brms` package
 
-#### Marginal additive models
+#### Marginal additive model
 
 The frequentist marginal additive model can be fitted by `mam` function
 in `mam` package [@mcgee2022flexible]. The predicted data in the `mam`
-should be the same as that we used in `bmam`. We can obtain the generated
-predicted data from the fitted `bmam` object by `bmam.fit$Preddat`.
+should the same as that we used in `bmam`. We can obtain the generated
+predicted data from the fitted `bmam` object by `bmam$Preddat`.
 
 ```{r message=FALSE, warning=FALSE}
 library(mam)
@@ -369,7 +350,7 @@ themam <- mam(smooth = list(s(x1),s(x2)),
                    fe = ~ x3,
                    dat = dat,
                    margdat = dat,
-                   preddat = bmam.fit$Preddat,
+                   preddat = bmam$Preddat,
                    control = mam_control(
                      method = 'trust',
                      varmethod = 1,
@@ -378,14 +359,14 @@ themam <- mam(smooth = list(s(x1),s(x2)),
 ```
 
 ```{r}
-plot(bmam.fit, compared.model = themam, smooth.function = simdata$f)
+plot(bmam, compared.model = themam, smooth.function = simdata$f)
 ```
 
-#### Generalized additive models
+#### Generalized additive model
 
-We could also compare the the models with GAM. The `plot` function now supports
-the generalized additive models by `mgcv` package and Bayesian
-generalized additive models by `brms` package.
+We could also compare the BMAM with GAM. The `plot` function now support
+the Generalized additive model by `mgcv` package and Bayesian
+generalized additive model by `brms` package.
 
 ```{r}
 gam <- gam(y ~  x3 + s(x1) + s(x2),
@@ -393,7 +374,7 @@ gam <- gam(y ~  x3 + s(x1) + s(x2),
 ```
 
 ```{r}
-plot(bmam.fit, compared.model = gam, smooth.function = simdata$f)
+plot(bmam, compared.model = gam, smooth.function = simdata$f)
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -405,38 +386,7 @@ bgam <- brm(bf(y ~  x3 + s(x1) + s(x2)), data = dat,
 ```
 
 ```{r}
-plot(bmam.fit, compared.model = bgam, smooth.function = simdata$f)
+plot(bmam, compared.model = bgam, smooth.function = simdata$f)
 ```
-
-### Center the smooth terms  
-In some cases, we may want to center the smooth functions. 
-
-We could add an argument `centered = TRUE` in `bmam` function, to estimate the centered smooth functions. 
-
-
-```{r}
-bmam.fit.centered <- bmam(object = model_brms, k=100, CIType="ETI", CI = 0.95, centered = TRUE)
-```
-
-We can also fit a MAM with centered smooth functions, 
-```{r message=FALSE, warning=FALSE}
-themam.centered <- mam(smooth = list(s(x1),s(x2)),
-                   re = y ~ (1+x3|id),
-                   fe = ~ x3,
-                   dat = dat,
-                   margdat = dat,
-                   preddat = bmam.fit.centered$Preddat,
-                   control = mam_control(
-                     centered = TRUE,
-                     method = 'trust',
-                     varmethod = 1,
-                     verbose = FALSE,
-                     retcond = TRUE))
-```
-Then, we can draw the plots by `plot` function introduced above to compare the centered smooth terms in BMAM, the conditional model, and MAM. 
-```{r}
-plot(bmam.fit.centered, compared.model = themam.centered)
-```
-
 
 ## References

@@ -60,15 +60,13 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
       fun <- smooth.function[[i]]
 
       truevalue <- fun(preddat[[var]])
-      
-      ## ********** Question? ***************
-      # if(bmam$Centered){
-      #   # projection
-      #   ones <- matrix(rep(1,length(truevalue)))
-      #   H_matrix <- ones %*% solve(t(ones) %*% ones) %*% t(ones)
-      #   M_matrix <- diag(1,length(truevalue)) - H_matrix
-      #   truevalue <- M_matrix %*% truevalue
-      # }
+      if(bmam$Centered){
+        # projection
+        ones <- matrix(rep(1,length(truevalue)))
+        H_matrix <- ones %*% solve(t(ones) %*% ones) %*% t(ones)
+        M_matrix <- diag(1,length(truevalue)) - H_matrix
+        truevalue <- M_matrix %*% truevalue
+      }
 
       
       dfplotT <- data.frame(x = preddat[[var]][index],
@@ -166,7 +164,7 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
         ylab(expression(f~(X))) + 
         scale_colour_manual(values = values, breaks = breaks)+
         scale_fill_manual(values = values, breaks = breaks)+
-        ggtitle("BMAM v.s. Compared.Model")
+        ggtitle("Comparison")
       remove(dfplotBoth)
     }
     
@@ -208,7 +206,7 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
         ylab(expression(f~(X))) + 
         scale_colour_manual(values = values, breaks = breaks)+
         scale_fill_manual(values = values, breaks = breaks)+
-        ggtitle("BMAM v.s. Conditional Model")
+        ggtitle("Marginal v.s. Conditional")
       
       remove(dfplotBoth)
     }
