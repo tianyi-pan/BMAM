@@ -12,6 +12,10 @@
 #' @import ggplot2
 #'
 plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE, smooth.function){
+  ## set up 
+  theme_set(theme_bw())
+  theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+  
   
   preddat <- object$Preddat # pred data in object 
   
