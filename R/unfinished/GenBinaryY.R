@@ -1,6 +1,6 @@
 ##' @title Generate binary response variable of GLMM model based on a known
 ##'   Marginalized model
-##' @param mean.formula mean formula for GLMM model
+
 ### Auxiliary functions ####################
 Etai2Deltai1 <-function(etai, gamma, sigma, q.points, Z, W){ 
   expit <- function(aa){exp(aa)/(1+exp(aa))}

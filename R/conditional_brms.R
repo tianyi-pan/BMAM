@@ -1,3 +1,15 @@
+#' @title Prediction from conditional GAMM
+#'
+#' @param object object Objects of Class 'brms'
+#' @param data A data frame containing covariates at which predictions are required.
+#' @param centered whether or not return centered smooths. Default \code{FALSE}
+#'   If \code{TRUE}, the smooth predictions returned will have their means
+#'   subtracted such that they have mean zero across the supplied covariate
+#'   values for predictions. See \code{MAM} package.
+#' @param ... Additional arguments passed to \code{bsummary()}
+#'
+#' @return a data frame containing prediction results (\code{bsummary()}) from the conditional GAMM 
+#' 
 conditional_brms <- function(object, data, centered = FALSE, ...){
   yhat <- fitted(
     object = object, newdata = data,
@@ -18,7 +30,8 @@ conditional_brms <- function(object, data, centered = FALSE, ...){
   as.data.table(do.call(rbind, apply(predicted, 1, bsummary, ...)))
   
   
-  ## method 2 minus colmean of designmatrix 
+  ### Method II. minus colmean of design matrix  ##############################
+  
   # 
   # 
   # object <- restructure(object)
@@ -58,5 +71,5 @@ conditional_brms <- function(object, data, centered = FALSE, ...){
   # Predicted <- pred_B %*% t(beta)
   # 
   # ## return
-  # tmp2 <- as.data.table(do.call(rbind, apply(Predicted, 1, bsummary, ...)))
+  # as.data.table(do.call(rbind, apply(Predicted, 1, bsummary, ...)))
 }

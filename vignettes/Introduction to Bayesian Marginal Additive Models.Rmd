@@ -3,14 +3,14 @@ title: "Introduction to Bayesian Marginal Additive Models"
 author: "Tianyi Pan"
 date: "`r Sys.Date()`"
 output: 
+  pdf_document:
+    toc: TRUE
+    toc_depth: 3
   html_document:
     toc: true
     toc_float:
       collapsed: false
       smooth_scroll: true
-    toc_depth: 3
-  pdf_document:
-    toc: TRUE
     toc_depth: 3
 bibliography: bibfile.bib  
 vignette: >
@@ -38,7 +38,6 @@ knitr::opts_knit$set(root.dir = "/Users/pantianyi/Documents/Research/Bayesian MA
 ## source code
 source("R/bmam.R")
 source("R/conditional_brms.R")
-source("R/prediction.R")
 source("R/generate_pred.R")
 source("R/plot.bmam.R")
 source("R/summary.R")

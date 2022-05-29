@@ -12,7 +12,8 @@
 #' @import ggplot2
 #'
 plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE, smooth.function){
-  ## set up 
+  
+  ### set up  #################
   theme_set(theme_bw())
   theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
   
@@ -21,12 +22,16 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
   
   plot_var <- unique(preddat$varname) # smooth term
   
+  
+  ## check arguments
   if(object$Centered){
     if((!missingArg(compared.model)) || (!missingArg(smooth.function))) 
       message("BMAM is centered.")
   }
   
-  gg <- list( # list to store ggplot object
+  
+  ## list to store ggplot object
+  gg <- list(
     BMAM = vector("list", length = length(plot_var)),
     Conditional = list(Conditional.Model = vector("list", length = length(plot_var)),
                        Comparison = vector("list", length = length(plot_var))),
@@ -36,11 +41,15 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
   
   
   
+  ### call ggplot to draw the plots #####################
   for(i in seq_along(plot_var)){
+    
+    ## i th smooth function
+    
     var <- plot_var[i]
     index <- which(preddat$varname == var)
     
-    
+    ## marginal model
     dfplotM <- data.frame(x = preddat[[var]][index],
                           fitted = object$Predicted_Summary$M[index],
                           uci = object$Predicted_Summary$UL[index],
@@ -64,16 +73,6 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
       fun <- smooth.function[[i]]
       
       truevalue <- fun(preddat[[var]])
-      
-      ## ********** Question? ***************
-      # if(bmam$Centered){
-      #   # projection
-      #   ones <- matrix(rep(1,length(truevalue)))
-      #   H_matrix <- ones %*% solve(t(ones) %*% ones) %*% t(ones)
-      #   M_matrix <- diag(1,length(truevalue)) - H_matrix
-      #   truevalue <- M_matrix %*% truevalue
-      # }
-      
       
       dfplotT <- data.frame(x = preddat[[var]][index],
                             fitted = truevalue[index],
@@ -149,6 +148,8 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
     }
     
     
+    
+    
     ## settings for ggplot
     if(!missingArg(smooth.function)){
       values <- c("black", "coral") 
@@ -162,6 +163,7 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
       breaks <- c(breaks, dfplotC$Method[1])
     }
     
+    
     if(exists("dfplotBoth")){
       gg$Compared.Model$Comparison[[i]] <- ggplot(data=dfplotBoth,aes(x=x,y=fitted, group=Method))+
         geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
@@ -174,7 +176,7 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
       remove(dfplotBoth)
     }
     
-    ## conditional ###############
+    ## conditional 
     if(conditional){
       
       conditional_predicted <- object$Conditional$Predicted ## results of conditional model
@@ -220,7 +222,7 @@ plot.bmam <- function(object, compared.model, conditional = TRUE, display = TRUE
   
   
   
-  
+  ### display ##################################
   if(display){
     oask <- devAskNewPage(TRUE)
     on.exit(devAskNewPage(oask))
