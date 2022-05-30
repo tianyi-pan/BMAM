@@ -1,6 +1,6 @@
 #' Fit Bayesian Marginal Additive Model (BMAM) 
 #' 
-#' modified from \code{brmsmargins::marginalcoef} function. 
+#' modifying \code{brmsmargins::marginalcoef} function. 
 #'
 #' @param object A fitted brms model object that includes random effects.
 #'   Required.

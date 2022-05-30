@@ -1,11 +1,11 @@
 #' @title summary() Method for Objects of Class 'bmam'
 #'
 #' @param object Objects of Class 'bmam'
-#' @param plot_smooth Whether or not to plot the smooth function 
+#' @param plot.smooth Whether or not to plot the smooth function 
 #' @param ... Additional arguments passed to \code{plot.bmam()}
 #' @return a list containing estimates of parameters for smooth terms
 #' @import dplyr
-summary.bmam <- function(object, plot_smooth = FALSE, ...){
+summary.bmam <- function(object, plot.smooth = FALSE, ...){
   
   print(object$Family)
   print(object$Formula)
@@ -25,7 +25,7 @@ summary.bmam <- function(object, plot_smooth = FALSE, ...){
   if(!is.null(names)){
     linear <- object$Posterior[names,]
     linear_est <- as.data.table(do.call(rbind,
-                                        apply(linear, 1, function(var) do.call("bsummary",c(list(object = var), object$Summary_para)))))
+                                        apply(linear, 1, function(var) do.call("bsummary",c(list(x = var), object$Summary_para)))))
     
     linear_est$Label <- names
     linear_est <- select(linear_est, Parameter = Label,M,Mdn,LL,UL,CI,CIType)
@@ -53,7 +53,7 @@ summary.bmam <- function(object, plot_smooth = FALSE, ...){
     names <- c(names1,names2)
     smooth <- post[, names]
     smooth_est_i <- as.data.table(do.call(rbind,
-                                          apply(smooth, 2, function(var) do.call("bsummary",c(list(object = var), object$Summary_para)))))
+                                          apply(smooth, 2, function(var) do.call("bsummary",c(list(x = var), object$Summary_para)))))
     smooth_est_i$Label <- object$Bname[[i]]
     smooth_est[[i]] <- select(smooth_est_i, Parameter = Label,M,Mdn,LL,UL,CI,CIType)
   }
@@ -65,7 +65,7 @@ summary.bmam <- function(object, plot_smooth = FALSE, ...){
   if(!is.null(names)){
     linear <- post[,variables[grep(pattern = "b_ *", variables)]]
     linear_est <- as.data.table(do.call(rbind,
-                                        apply(linear, 2, function(var) do.call("bsummary",c(list(object = var), object$Summary_para)))))
+                                        apply(linear, 2, function(var) do.call("bsummary",c(list(x = var), object$Summary_para)))))
     linear_est$Label <- names
     linear_est <- select(linear_est, Parameter = Label,M,Mdn,LL,UL,CI,CIType)
     
@@ -86,8 +86,8 @@ summary.bmam <- function(object, plot_smooth = FALSE, ...){
   cat("\n Conditional Model \n")
   print(out$Conditional_Model$Linear)
   
-  if(length(list(...)) != 0) plot_smooth <- TRUE
-  if(plot_smooth){
+  if(length(list(...)) != 0) plot.smooth <- TRUE
+  if(plot.smooth){
     gg <- plot(object, ... )
     out$plot <- gg
   }
