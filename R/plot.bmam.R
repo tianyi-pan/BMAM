@@ -7,7 +7,7 @@
 #'                                         3. brms gam
 #' @param display Whether or not to display the plot. Default: TRUE
 #' @param conditional Whether or not to plot the conditional model. Default: TRUE 
-#' @param smooth.function A list. True value of the smooth functions. 
+#' @param smooth.function A list. True values of the smooth functions. 
 #' @return a list containing ggplot objects. 
 #' @import ggplot2
 #'

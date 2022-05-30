@@ -15,9 +15,6 @@
 #'   save and return the posterior samples. Defaults
 #'   to \code{FALSE} as the assumption is a typical
 #'   use case is to return the summaries only.
-#' @param index An optional integer vector, giving the posterior draws
-#'   to be used in the calculations. If omitted, defaults to all
-#'   posterior draws.
 #' @param dpar Parameter passed on the \code{dpar}
 #'   argument of \code{fitted()} in brms. Defaults to \code{NULL}
 #'   indicating the mean or location parameter typically.
@@ -71,7 +68,7 @@
 #' @importFrom methods missingArg
 #' @export
 prediction <- function(object, data, summarize = TRUE, posterior = FALSE,
-                       index, dpar = NULL, resample = 0L, resampleseed = FALSE,
+                       dpar = NULL, resample = 0L, resampleseed = FALSE,
                        effects = c("fixedonly", "includeRE", "integrateoutRE"),
                        backtrans = c("response", "linear", "identity",
                                      "invlogit", "exp", "square", "inverse"),
@@ -98,9 +95,6 @@ prediction <- function(object, data, summarize = TRUE, posterior = FALSE,
     brmsmargins:::.assertgaussian(object)
   }
 
-  if (isTRUE(missingArg(index))) {
-    index <- seq_len(ndraws(object))
-  }
 
   links <- brmsmargins:::.links(
     link = brmsmargins:::.extractlink(object, dpar),
@@ -137,6 +131,7 @@ prediction <- function(object, data, summarize = TRUE, posterior = FALSE,
   
   
   ## or generate just the fixed effects predictions (if integrateoutRE)
+  index <- seq_len(ndraws(object))
   yhat <- fitted(
     object = object, newdata = data,
     re_formula = useRE, # useRE = NA if integrateoutRE (in marginaleffects and AMEs)

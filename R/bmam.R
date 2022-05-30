@@ -13,8 +13,6 @@
 #' @param posterior A logical value whether or not to save and return the
 #'   posterior samples. Defaults to \code{FALSE} as the assumption is a typical
 #'   use case is to return the summaries only.
-#' @param index An optional integer vector, giving the posterior draws to be
-#'   used in the calculations. If omitted, defaults to all posterior draws.
 #' @param backtrans A character string indicating the type of back
 #'   transformation to be applied. Can be one of \dQuote{response} meaning to
 #'   use the response scale, \dQuote{linear} or \dQuote{identity} meaning to use
@@ -23,7 +21,7 @@
 #'   \dQuote{inverse}. Custom back transformations should only be needed if, for
 #'   example, the outcome variable was transformed prior to fitting the model.
 #'   default: \dQuote{response}
-#' @param centered whether or not return centered smooths. Default \code{FALSE}
+#' @param centered Whether or not return centered smooths. Default \code{FALSE}
 #'   If \code{TRUE}, the smooth predictions returned will have their means
 #'   subtracted such that they have mean zero across the supplied covariate
 #'   values for predictions. See \code{MAM} package.
@@ -48,9 +46,9 @@
 #' @importFrom methods missingArg
 #' @export
 bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TRUE, 
-                 index, backtrans = c("response", "linear", "identity",
-                                       "invlogit", "exp", "square", "inverse"),
-                 centered = FALSE, k = 100L, ...) {
+                 backtrans = c("response", "linear", "identity",
+                               "invlogit", "exp", "square", "inverse"),
+                 centered = FALSE, k = 100, ...) {
   if (isFALSE(object$backend) == "cmdstanr") {
     stop("We only support cmdstanr. Please change backend of brms to cmdstanr by backend = \"cmdstanr\" ")
   }
@@ -75,10 +73,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
   ## assert that all random effects in the model are Gaussian
   brmsmargins:::.assertgaussian(object)
 
-  # number of draws. generate the corresponding index: 1 to the number.
-  if (isTRUE(missingArg(index))) {
-    index <- seq_len(ndraws(object))
-  }
+
   
   # Convert a Link Function Name to a List
   backtrans <- match.arg(backtrans)
@@ -105,7 +100,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
   # get the predictive posterior distribution of \mu 
   mu <- brmsmargins::prediction(
     object, data = mf,
-    summarize = FALSE, posterior = TRUE, index = index,
+    summarize = FALSE, posterior = TRUE,
     effects = "integrateoutRE", backtrans = backtrans,
     k = k, raw = TRUE)
 
