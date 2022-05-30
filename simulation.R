@@ -44,7 +44,7 @@ if(FALSE){
 load("data/simu_brms.rds")
 
 
-bmam. <- bmam(object = model_brms, centered = T,
+bmam <- bmam(object = model_brms, centered = T,
                      k=100, CIType="ETI", CI = 0.95)
 
 
