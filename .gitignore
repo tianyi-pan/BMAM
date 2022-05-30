@@ -5,6 +5,7 @@
 vignettes/*_cache
 vignettes/*_files
 vignettes/*.rdb
+vignettes/.DS_Store
 vignettes/Introduction-to-Bayesian-Marginal-Additive-Models_cache/html/*
 vignettes/Introduction-to-Bayesian-Marginal-Additive-Models_cache/latex/*
 vignettes/Introduction-to-Bayesian-Marginal-Additive-Models_files/html/*
