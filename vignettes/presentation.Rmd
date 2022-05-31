@@ -34,7 +34,7 @@ knitr::opts_knit$set(root.dir = "/Users/pantianyi/Documents/Research/Bayesian MA
 knitr::include_graphics(here::here("vignettes/figures", "overall.pdf"))
 ```
 
-
+# Fit BMAM
 ## bmam()
 - Fit Bayesian Marginal Additive Model (BMAM)
 
@@ -238,6 +238,7 @@ conditional_brms <- function(object, data, centered = FALSE, ...){
 ```
 
 
+# Plot and Summary
 
 ##
 ```{r, out.width = '100%', echo=FALSE}
