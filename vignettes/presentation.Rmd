@@ -35,10 +35,10 @@ knitr::include_graphics(here::here("vignettes/figures", "overall.pdf"))
 ```
 
 
-<!-- ## bmam() -->
-<!-- - Fit Bayesian Marginal Additive Model (BMAM) -->
+## bmam()
+- Fit Bayesian Marginal Additive Model (BMAM)
 
-<!-- - Modifying `brmsmargins::marginalcoef` function -->
+- Modifying `brmsmargins::marginalcoef` function
   
 ## bmam()
 ```{r, eval=F, echo=T}
