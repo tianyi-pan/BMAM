@@ -238,7 +238,7 @@ conditional_brms <- function(object, data, centered = FALSE, ...){
 ```
 
 
-# Plot and Summary
+# Plot & Summary
 
 ##
 ```{r, out.width = '100%', echo=FALSE}
