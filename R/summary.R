@@ -1,7 +1,7 @@
 #' @title summary() Method for Objects of Class 'bmam'
 #'
 #' @param object Objects of Class 'bmam'
-#' @param plot.smooth Whether or not to plot the smooth function 
+#' @param plot.smooth Whether or not to plot bmam 
 #' @param ... Additional arguments passed to \code{plot.bmam()}
 #' @return a list containing estimates of parameters for smooth terms
 #' @import dplyr

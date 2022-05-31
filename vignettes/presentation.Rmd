@@ -35,10 +35,10 @@ knitr::include_graphics(here::here("vignettes/figures", "overall.pdf"))
 ```
 
 
-## bmam()
-- Fit Bayesian Marginal Additive Model (BMAM)
+<!-- ## bmam() -->
+<!-- - Fit Bayesian Marginal Additive Model (BMAM) -->
 
-- Modifying `brmsmargins::marginalcoef` function
+<!-- - Modifying `brmsmargins::marginalcoef` function -->
   
 ## bmam()
 ```{r, eval=F, echo=T}
@@ -52,12 +52,12 @@ bmam <- function(object, preddat, length = 100,
 
 - **object** A fitted brms model object
 - **preddat** A data frame containing covariates at which predictions are required
-- **length** The number of observations in the generated predicted data
+- **length** The number of observations in the generated preddat
 - **summarize** Whether or not to calculate summaries of the posterior predictions
 - **posterior** Whether or not to save and return the posterior samples
-- **backtrans** The type of back transformation to be applied. default: response meaning to use the response scale
+- **backtrans** The type of back transformation to be applied. default: response (use the response scale)
 - **centered** Whether or not return centered smooths
-- **k** The number of random draws to use for integrating out the random effects (Monte Carlo)
+- **k** The number of random draws in Monte Carlo method for integrating out the random effects 
 
 
 ##
@@ -78,7 +78,7 @@ generate_pred <- function(object, length = 100){
   ## smooth term
   smterm <- brmsterms(object$formula)$dpars$mu$sm # smooth term 
   stopifnot(!is.null(smterm)) # check
-  smvariable <- lapply(smterm[[2]][-1], function(term.) term.[[2]]) # variable for smooth term
+  smvariable <- lapply(smterm[[2]][-1], function(term.) term.[[2]]) # variable
   sm_pred <- lapply(smvariable, function(var){
     x <- mf[[var]]
     x <- x[which(x!=0)] # remove 0
@@ -260,7 +260,7 @@ plot.bmam <- function(object, compared.model,
                      Supported models: 1. mam
                                        2. gam
                                        3. brms gam
-- **display** Whether or not to display the plot. Default: TRUE
+- **display** Whether or not to display the plots. Default: TRUE
 - **conditional** Whether or not to plot the conditional model. Default: TRUE 
 - **smooth.function** True values of the smooth functions. 
 
@@ -272,21 +272,22 @@ print.bmam <- function(object,...){
   summary(object,...)
   invisible()
 }
-```
-
-```{r, eval=F, echo=T}
 summary.bmam <- function(object, plot.smooth = FALSE, ...){
   ### 1. Marginal Model ##################
   ## smooth term; linear term
-  ...
   ### 2. Conditional Model #############
   ## smooth term; linear term
-  ...
+  out <- list(BMAM = BMAM, Conditional_Model = Conditional_Model)
+  if(plot.smooth){
+    gg <- plot(object, ... )
+    out$plot <- gg
+  }
+  invisible(out)
 }
 ```
 
 - **object** Objects of Class 'bmam'
-- **plot.smooth** Whether or not to plot the smooth function
+- **plot.smooth** Whether or not to plot bmam 
 
 
 
