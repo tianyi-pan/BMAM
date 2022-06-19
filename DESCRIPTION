@@ -1,0 +1,18 @@
+Package: bmam
+Type: Package
+Title: Bayesian Marginal Additive Model
+Version: 0.1.0
+Author: Tianyi Pan
+Maintainer: Tianyi Pan <tianyi.pan@uwaterloo.ca>
+Description: Fit Bayesian Marginal Additive Model (BMAM) based on brms and brmsmargins
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.0
+Imports: 
+    brms,
+    brmsmargins,
+    fastGHQuad,
+    data.table,
+    ggplot2,
+    dplyr 

@@ -25,7 +25,15 @@ generate_pred <- function(object, length = 100){
   
   ## fix effect term
   feterm <- brmsterms(object$formula)$dpars$mu$fe[[2]][-1]
+  
   if(feterm[[1]] == 1) feterm <- feterm[[-1]] # delete the intercept
+  
+  feterm <- lapply(feterm, function(var){
+    if (length(var) > 1)  var = var[[3]]
+    var
+  })
+
+  
   if(!is.null(feterm)){
     fevariable <- feterm
     fe_pred <- lapply(fevariable, function(var){
@@ -34,7 +42,7 @@ generate_pred <- function(object, length = 100){
       if(is.numeric(x)) x_pred <- 0
       rep(x_pred, length = length)
     })
-    names(fe_pred) <- list(fevariable)
+    names(fe_pred) <- fevariable
     fe_pred <- do.call("cbind.data.frame", fe_pred)
   }else{
     fe_pred <- NULL

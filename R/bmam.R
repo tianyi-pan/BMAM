@@ -1,6 +1,6 @@
-#' Fit Bayesian Marginal Additive Model (BMAM) 
-#' 
-#' modifying \code{brmsmargins::marginalcoef} function. 
+#' Fit Bayesian Marginal Additive Model (BMAM)
+#'
+#' modifying \code{brmsmargins::marginalcoef} function.
 #'
 #' @param object A fitted brms model object that includes random effects.
 #'   Required.
@@ -44,28 +44,31 @@
 #' @importFrom posterior as_draws_df ndraws
 #' @importFrom brms make_standata
 #' @importFrom methods missingArg
+#' @import brmsmargins
+#' @import data.table
 #' @export
-bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TRUE, 
+#'
+bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TRUE,
                  backtrans = c("response", "linear", "identity",
                                "invlogit", "exp", "square", "inverse"),
                  centered = FALSE, k = 100, ...) {
   if (isFALSE(object$backend) == "cmdstanr") {
     stop("We only support cmdstanr. Please change backend of brms to cmdstanr by backend = \"cmdstanr\" ")
   }
-  
+
   ## check smooth term
   smooth <- !is.null(brmsterms(object$formula)$dpars$mu$sm)
-  
+
   ## checks and assertions
   brmsmargins:::.assertbrmsfit(object)
 
   if (isFALSE(brmsmargins:::is.random(object))) {
     stop("object must have random effects to use marginalcoef()")
   }
-  
+
   ## predicted data
   if (missingArg(preddat)) preddat <- generate_pred(object, length)
-    
+
   ## assert the assumed family / distribution is a supported one
   brmsmargins:::.assertfamily(object)
   ## assert the link function used is a supported one
@@ -74,30 +77,30 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
   brmsmargins:::.assertgaussian(object)
 
 
-  
+
   # Convert a Link Function Name to a List
   backtrans <- match.arg(backtrans)
   links <- brmsmargins:::.links(
     link = brmsmargins:::.extractlink(object, NULL),
     effects = "integrateoutRE", backtrans = backtrans)
-  
-  
-  
-  
+
+
+
+
   ####### Conditional Model ##############
-  
-  # CI <- ifelse(is.element("CI", list(...)), CI, 0.99) 
+
+  # CI <- ifelse(is.element("CI", list(...)), CI, 0.99)
   predict_conditional <- conditional_brms(object, preddat, centered = centered, ...)
-  
-  
-  
-  
+
+
+
+
   ####### Marginal Model #################
   # get the dataset in the model.
   mf <- model.frame(object)
-  
-  # see prediction function. 
-  # get the predictive posterior distribution of \mu 
+
+  # see prediction function.
+  # get the predictive posterior distribution of \mu
   mu <- brmsmargins::prediction(
     object, data = mf,
     summarize = FALSE, posterior = TRUE,
@@ -105,127 +108,127 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
     k = k, raw = TRUE)
 
   # convert \mu to \eta = g(\mu). links$fun: link function
-  
+
   # get lambda_pa in equation 6 in Hedeker's paper
   y <- links$fun(t(mu$Posterior))
-  
+
   ## dim(y) == number of observations * number of draws(in MCMC)
-  
-  
+
+
   # design matrix in dataset
   standata <- make_standata(formula(object), data = mf)
-  
+
   if(smooth){
     data_names <- names(standata) # get the names of data
-    
+
     # ## Z: design matrix for random effect
     # Z_name <- data_names[grep(pattern = "Z_\\d_\\d", data_names)]
     # Z <- do.call(cbind,standata[Z_name])
-    
+
     ## Zs: basis function for smooth term (ncol = k-2)
     Zs_name <- data_names[grep(pattern = "Zs_\\d_\\d", data_names)]
     Zs <- do.call(cbind, standata[Zs_name])
     ## set names for Zs
-    Zs_name_list <- mapply(function(i,j)paste(j,seq_len(i),sep="_alpha_"), 
+    Zs_name_list <- mapply(function(i,j)paste(j,seq_len(i),sep="_alpha_"),
                            lapply(standata[Zs_name],ncol), # number of basis function
                            Zs_name,
                            SIMPLIFY = FALSE)
     colnames(Zs) <- as.character(unlist(Zs_name_list))
-    
-    
+
+
     ## Xs: basis function for smooth term, without penalty (ncol = 1)
     Xs_name <- data_names[grep(pattern = "Xs", data_names)]
     Xs <- do.call(cbind, standata[Xs_name])
     ## set names for Xs
-    Xs_name_list <- mapply(function(i,j)paste(j,seq_len(i),"alpha",sep="_"), 
+    Xs_name_list <- mapply(function(i,j)paste(j,seq_len(i),"alpha",sep="_"),
                            lapply(standata[Xs_name],ncol), # number of basis function
                            Xs_name)
     colnames(Xs) <- as.character(unlist(Xs_name_list))
-    
-    
+
+
     ## X: linear term, for example intercept + x1 + x2 + x1:x2
     X <- standata$X
-    
-    ## design matrix for 
+
+    ## design matrix for
     B <- cbind(X, Xs, Zs)
   }else{
     B <- standata$X # in GLMM, B=X, linear term, for example 1 + x1 + x2 + x1:x2
   }
-  
+
 
   ## calculate beta_pa using equation 6 in Hedeker's paper
-  ## heagerty's method, solve  
+  ## heagerty's method, solve
   beta <- lmcpp(B, y)  # Cpp file. faster than beta <- solve( t(B) %*% B ) %*% t(B) %*% y
   rownames(beta) <- colnames(B)
-  
-  
+
+
   out <- list(
     Conditional = NULL, # conditional model
-    Summary = NULL, # summary of the posterior distribution of parameters 
-    Summary_para = NULL, # arguments used in bsummary() for summary results. 
+    Summary = NULL, # summary of the posterior distribution of parameters
+    Summary_para = NULL, # arguments used in bsummary() for summary results.
     Posterior = NULL, # samples from posterior distribution
     Preddat = NULL, # predicted data
     DesignMatrix = NULL, # design matrix B
     Bname = NULL, # variable names for B
     # Smooth = NULL, # fitted values
-    Predicted = NULL, # estimates of each smooth function under different samples 
-    Predicted_Summary = NULL, # summary of estimates of each smooth function under different samples 
-    Family = object$family, 
+    Predicted = NULL, # estimates of each smooth function under different samples
+    Predicted_Summary = NULL, # summary of estimates of each smooth function under different samples
+    Family = object$family,
     Formula = object$formula,
     Centered = centered)
 
   out$Conditional <- list(Brms = object,
                           Predicted = predict_conditional)
-                   
-  if (isTRUE(summarize)) { # does not work for 
+
+  if (isTRUE(summarize)) { # does not work for
     out$Summary <- as.data.table(do.call(rbind, apply(beta, 1, bsummary, ...)))
     out$Summary[, Label := colnames(B)]
-    out$Summary_para <- list(...) # get arguments for bsummary, used in plot function. 
+    out$Summary_para <- list(...) # get arguments for bsummary, used in plot function.
   }
 
   if(smooth){
-    Bname <- mapply(c, as.list(Xs_name_list), Zs_name_list) # variable names for basis function. 
+    Bname <- mapply(c, as.list(Xs_name_list), Zs_name_list) # variable names for basis function.
     ## estimate the smooth function by B*\alpha
     if(!is.list(Bname)){ # convert Bname to a list
       Bname <- lapply(seq_len(ncol(Bname)), function(i) Bname[,i])
     }
-    
-    
+
+
     out$DesignMatrix <- B
     out$Bname <- Bname
-    
+
     ## fitted value
     # smooth_estimates <- lapply(Bname, function(name)B[,name] %*% beta[name, ])
     # names(smooth_estimates) <- paste0("f",seq_along(Bname))
     # out$Smooth <- smooth_estimates
-    
-    
+
+
     if(!missingArg(preddat)){
 
 
       object <- restructure(object)
       prep <- prepare_predictions(object, newdata = preddat,check_response = FALSE, re_formula = NA)
-      
+
       ## Xs: basis function for smooth term, without penalty (ncol = 1)
       pred_Xs <- prep$dpars$mu$sm$fe$Xs
-      
+
       ## Zs: basis function for smooth term (ncol = k-2)
       pred_Zs <- sapply(prep$dpars$mu$sm$re, function(re.)re.$Zs)
       pred_Zs <- do.call(cbind, pred_Zs)
-      
+
       ## X: linear term, for example intercept + x1 + x2 + x1:x2
       pred_X <- prep$dpars$mu$fe$X
       pred_B <- cbind(pred_X, pred_Xs, pred_Zs)
-      
+
       if(centered) pred_B <- sweep(pred_B,2,colMeans(pred_B),'-') # Return centered smooths.
-      
-      ## projection 
-      ## the same as  sweep(pred_B,2,colMeans(pred_B),'-') 
+
+      ## projection
+      ## the same as  sweep(pred_B,2,colMeans(pred_B),'-')
       # ones <- matrix(rep(1,nrow(pred_B)))
       # H_matrix <- ones %*% solve(t(ones) %*% ones) %*% t(ones)
       # M_matrix <- diag(1,nrow(pred_B)) - H_matrix
       # pred_B <- M_matrix %*% pred_B
-      
+
       Predicted <- pred_B %*% beta
       out$Predicted <- Predicted
       out$Predicted_Summary <- as.data.table(do.call(rbind, apply(Predicted, 1, bsummary, ...)))
@@ -236,6 +239,6 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
     out$Preddat <- preddat
   }
 
-  structure(out, class = "bmam") # S3 class
+  structure(out, class = "bmamfit") # S3 class
   # return(out)
 }
