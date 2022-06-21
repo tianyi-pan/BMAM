@@ -145,6 +145,7 @@ GenBinaryY <- function(mean.formula, lv.formula = NULL, t.formula = NULL,
   lps.s = split(lps, lps$id) # split the design matrix by id (cluster)
   n.id  = length(lps.s) # number of id
   YY    = vector('list', n.id) # number of vector = number of id
+  zz <- vector('list', n.id) # store the value of random effects
   # delta_vector    = vector('list', n.id) # add delta
   # mu_vector    = vector('list', n.id) # add mu
   # Zg_vector    = vector('list', n.id) # add Z%*%gamma
@@ -195,6 +196,7 @@ GenBinaryY <- function(mean.formula, lv.formula = NULL, t.formula = NULL,
       Y <- Y #Y <- NA
     }
     YY[[ix]] <- Y
+    zz[[ix]] <- matrix(rep(chol.Sigma %*% t(z), nr.lp), nrow = nr.lp, byrow = T)
     # mu_vector[[ix]] <- MuC # add mu
     # delta_vector[[ix]] <- deltai # add delta
     # Zg_vector[[ix]] <- Zg # add Z%*%gamma
@@ -202,6 +204,7 @@ GenBinaryY <- function(mean.formula, lv.formula = NULL, t.formula = NULL,
   Y <- unlist(YY)
   data0[,Yname] <- Y
 
+  data0 <- cbind(data0, do.call('rbind', zz))
   # Delta <- unlist(delta_vector) #add delta
   # data0[,"delta"] <- Delta # add delta
   # data0[,"mu"] <- unlist(mu_vector) # add mu
