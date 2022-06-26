@@ -171,7 +171,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
     DesignMatrix = NULL, # design matrix B
     Bname = NULL, # variable names for B
     # Smooth = NULL, # fitted values
-    Predicted = NULL, # estimates of each smooth function under different samples
+    # Predicted = NULL, # estimates of each smooth function under different samples # reduce memory usage
     Predicted_Summary = NULL, # summary of estimates of each smooth function under different samples
     Family = object$family,
     Formula = object$formula,
@@ -230,7 +230,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
       # pred_B <- M_matrix %*% pred_B
 
       Predicted <- pred_B %*% beta
-      out$Predicted <- Predicted
+      # out$Predicted <- Predicted   # reduce memory usage
       out$Predicted_Summary <- as.data.table(do.call(rbind, apply(Predicted, 1, bsummary, ...)))
     }
     if (isTRUE(posterior)) {
