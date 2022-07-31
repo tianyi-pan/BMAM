@@ -15,4 +15,8 @@ Imports:
     fastGHQuad,
     data.table,
     ggplot2,
-    dplyr 
+    dplyr,
+    methods,
+    posterior,
+    stringi
+    

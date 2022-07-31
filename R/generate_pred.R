@@ -4,7 +4,7 @@
 #' @param length number of observations in the generated data
 #'
 #' @return predicted data, used by \code{marginalcoef()}
-#'
+#' @import stringi
 generate_pred <- function(object, length = 100){
   mf <- model.frame(object) # data in object
 
@@ -26,18 +26,34 @@ generate_pred <- function(object, length = 100){
   ## fix effect term
   feterm <- brmsterms(object$formula)$dpars$mu$fe[[2]][-1]
 
-  if(feterm[[1]] == 1) feterm <- feterm[[-1]] # delete the intercept
 
-  if(length(feterm[[2]]) > 1) feterm <- feterm[[1]] # delete interaction
 
-  feterm <- lapply(feterm, function(var){
-    if (length(var) > 1)  var = var[[3]]
-    if (var == "+") var = NULL
-    var
-  })
-  feterm[sapply(feterm, is.null)] <- NULL
+  if(length(feterm) > 0){
+    if(feterm[[1]] == 1) feterm <- feterm[[-1]] # delete the intercept
 
-  if(!is.null(feterm)){
+
+    feterm <- as.character(feterm[[1]])
+    feterm <- unlist(stri_split_fixed(feterm, " "))
+
+    feterm <- as.list(unique(
+      feterm[!is.na(stri_extract(feterm, regex = "[a-zA-Z]"))]
+      ))
+    #
+    #
+    # if(length(feterm[[2]]) > 1) feterm <- feterm[[1]] # delete interaction
+    # if(feterm[[1]]=="+") feterm <- feterm[-1] # delete symbol
+    # print(typeof(feterm))
+    # View(feterm[[1]])
+    # View(feterm[[2]])
+    #
+    # feterm <- lapply(feterm, function(var){
+    #   if (length(var) > 1)  var = var[[3]]
+    #   if (var == "+") var = NULL
+    #   var
+    # })
+    # feterm[sapply(feterm, is.null)] <- NULL
+
+    if(!is.null(feterm)){
     fevariable <- feterm
     fe_pred <- lapply(fevariable, function(var){
       x <- mf[[var]]
@@ -47,6 +63,9 @@ generate_pred <- function(object, length = 100){
     })
     names(fe_pred) <- fevariable
     fe_pred <- do.call("cbind.data.frame", fe_pred)
+    }else{
+      fe_pred <- NULL
+    }
   }else{
     fe_pred <- NULL
   }
@@ -55,11 +74,13 @@ generate_pred <- function(object, length = 100){
     ## pred data for this variable
     sm_pred_design <- sm_pred; sm_pred_design[,] <- 0
     sm_pred_design[[var]] <- sm_pred[[var]]
-    preddat_var <- cbind(sm_pred_design, fe_pred)
+    preddat_var <- sm_pred_design
+    if(!is.null(fe_pred)) preddat_var <- cbind(sm_pred_design, fe_pred)
     preddat_var$varname <- as.character(var) # column to indicate the name of variable
     preddat_var
   })
 
   preddat <- do.call("rbind",preddat)
+
   return(preddat)
 }
