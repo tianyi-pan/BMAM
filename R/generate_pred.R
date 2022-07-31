@@ -11,7 +11,16 @@ generate_pred <- function(object, length = 100){
   ## smooth term
   smterm <- brmsterms(object$formula)$dpars$mu$sm # smooth term
   stopifnot(!is.null(smterm)) # check
-  smvariable <- lapply(smterm[[2]][-1], function(term.) term.[[2]]) # variable for smooth term
+
+  smterm <- as.character(smterm)
+  smterm <- unlist(stri_split_fixed(smterm, " "))
+  smvariable <- as.list(unique(
+    smterm[!is.na(stri_extract(smterm, regex = "[a-zA-Z0-9]"))]
+  ))
+  smvariable <- str_replace_all(smvariable, "s\\(","")
+  smvariable <- str_replace_all(smvariable, "\\)","")
+
+  # smvariable <- lapply(smterm[[2]][-1], function(term.) term.[[2]]) # variable for smooth term
 
   sm_pred <- lapply(smvariable, function(var){
     x <- mf[[var]]
@@ -24,35 +33,20 @@ generate_pred <- function(object, length = 100){
   sm_pred <- do.call("cbind.data.frame", sm_pred)
 
   ## fix effect term
-  feterm <- brmsterms(object$formula)$dpars$mu$fe[[2]][-1]
+  feterm <- brmsterms(object$formula)$dpars$mu$fe
 
 
 
   if(length(feterm) > 0){
-    if(feterm[[1]] == 1) feterm <- feterm[[-1]] # delete the intercept
+    # if(feterm[[1]] == 1) feterm <- feterm[[-1]] # delete the intercept
 
-
-    feterm <- as.character(feterm[[1]])
+    feterm <- as.character(feterm)
     feterm <- unlist(stri_split_fixed(feterm, " "))
 
     feterm <- as.list(unique(
       feterm[!is.na(stri_extract(feterm, regex = "[a-zA-Z]"))]
       ))
-    #
-    #
-    # if(length(feterm[[2]]) > 1) feterm <- feterm[[1]] # delete interaction
-    # if(feterm[[1]]=="+") feterm <- feterm[-1] # delete symbol
-    # print(typeof(feterm))
-    # View(feterm[[1]])
-    # View(feterm[[2]])
-    #
-    # feterm <- lapply(feterm, function(var){
-    #   if (length(var) > 1)  var = var[[3]]
-    #   if (var == "+") var = NULL
-    #   var
-    # })
-    # feterm[sapply(feterm, is.null)] <- NULL
-
+    feterm <- feterm[is.na(stri_extract(feterm, regex = ":"))]
     if(!is.null(feterm)){
     fevariable <- feterm
     fe_pred <- lapply(fevariable, function(var){
