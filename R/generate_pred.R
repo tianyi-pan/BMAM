@@ -52,6 +52,7 @@ generate_pred <- function(object, length = 100){
     fevariable <- feterm
     fe_pred <- lapply(fevariable, function(var){
       x <- mf[[var]]
+      if(is.character(x)) x_pred <- x[1]
       if(is.factor(x)) x_pred <- factor(levels(x)[1],levels=levels(x))
       if(is.numeric(x)) x_pred <- 0
       rep(x_pred, length = length)
