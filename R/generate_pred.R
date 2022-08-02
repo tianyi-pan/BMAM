@@ -5,6 +5,7 @@
 #'
 #' @return predicted data, used by \code{marginalcoef()}
 #' @import stringi
+#' @import stringr
 generate_pred <- function(object, length = 100){
   mf <- model.frame(object) # data in object
 
@@ -69,7 +70,9 @@ generate_pred <- function(object, length = 100){
     sm_pred_design <- sm_pred; sm_pred_design[,] <- 0
     sm_pred_design[[var]] <- sm_pred[[var]]
     preddat_var <- sm_pred_design
-    if(!is.null(fe_pred)) preddat_var <- cbind(sm_pred_design, fe_pred)
+    if(!is.null(fe_pred)){
+      if(nrow(fe_pred) != 0) preddat_var <- cbind(sm_pred_design, fe_pred)
+    }
     preddat_var$varname <- as.character(var) # column to indicate the name of variable
     preddat_var
   })
