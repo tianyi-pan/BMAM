@@ -6,6 +6,7 @@
 #' @return a list containing estimates of parameters for smooth terms
 #' @import dplyr
 #' @export
+#'
 summary.bmamfit <- function(object, plot.smooth = FALSE, ...){
 
   print(object$Family)
@@ -46,8 +47,14 @@ summary.bmamfit <- function(object, plot.smooth = FALSE, ...){
   ## smooth term
   smooth_est <- vector("list",length = length(object$Bname))
   for(i in seq_along(object$Bname)){
-    names1 <- variables[grep(pattern = paste0("bs_s",as.character(smterm[[2]][[i+1]][[2]])," *"), variables)]
-    names2<- variables[grep(pattern = paste0("^s_s",as.character(smterm[[2]][[i+1]][[2]]),"_\\d *"), variables)]
+
+    if(length(object$Bname) == 1) {
+      names1 <- variables[grep(pattern = paste0("bs_s",as.character(smterm[[2]][2])," *"), variables)]
+      names2<- variables[grep(pattern = paste0("^s_s",as.character(smterm[[2]][2]),"_\\d *"), variables)]
+    }else{
+      names1 <- variables[grep(pattern = paste0("bs_s",as.character(smterm[[2]][[i+1]][[2]])," *"), variables)]
+      names2<- variables[grep(pattern = paste0("^s_s",as.character(smterm[[2]][[i+1]][[2]]),"_\\d *"), variables)]
+    }
 
     variables[grep(pattern = paste0("^s_s *"), variables)]
 
