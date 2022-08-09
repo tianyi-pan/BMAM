@@ -162,7 +162,12 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
 
 
     ## X: linear term, for example intercept + x1 + x2 + x1:x2
-    X <- standata$X
+    if(horseshoe){
+      X_name <- data_names[grep(pattern = "X_.*", data_names)]
+      X <- do.call(cbind, standata[X_name])
+    }else{
+      X <- standata$X
+    }
 
     ## design matrix for
     B <- cbind(X, Xs, Zs)
