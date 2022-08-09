@@ -5,6 +5,7 @@
 #' @param ... Additional arguments passed to \code{plot.bmam()}
 #' @return a list containing estimates of parameters for smooth terms
 #' @import dplyr
+#' @import stringr
 #' @export
 #'
 summary.bmamfit <- function(object, plot.smooth = FALSE, ...){
@@ -23,7 +24,7 @@ summary.bmamfit <- function(object, plot.smooth = FALSE, ...){
 
   ## linear term
   variables <- variables(object$Conditional$Brms) ## get variables of linear term
-  names <- sapply(variables[grep(pattern = "b_ *", variables)], function(name) substring(name,3))
+  names <- sapply(variables[grep(pattern = "^b_ *", variables)], function(name) str_replace(substring(name,3), "a_",""))
   if(!is.null(names)){
     linear <- object$Posterior[names,]
     linear_est <- as.data.table(do.call(rbind,
@@ -49,14 +50,14 @@ summary.bmamfit <- function(object, plot.smooth = FALSE, ...){
   for(i in seq_along(object$Bname)){
 
     if(length(object$Bname) == 1) {
-      names1 <- variables[grep(pattern = paste0("bs_s",as.character(smterm[[2]][2])," *"), variables)]
-      names2<- variables[grep(pattern = paste0("^s_s",as.character(smterm[[2]][2]),"_\\d *"), variables)]
+      names1 <- variables[grep(pattern = paste0("^bs_.*s",as.character(smterm[[2]][2])," *"), variables)]
+      names2<- variables[grep(pattern = paste0("^s_.*s",as.character(smterm[[2]][2]),"_\\d *"), variables)]
     }else{
-      names1 <- variables[grep(pattern = paste0("bs_s",as.character(smterm[[2]][[i+1]][[2]])," *"), variables)]
-      names2<- variables[grep(pattern = paste0("^s_s",as.character(smterm[[2]][[i+1]][[2]]),"_\\d *"), variables)]
+      names1 <- variables[grep(pattern = paste0("^bs_.*s",as.character(smterm[[2]][[i+1]][[2]])," *"), variables)]
+      names2<- variables[grep(pattern = paste0("^s_.*s",as.character(smterm[[2]][[i+1]][[2]]),"_\\d *"), variables)]
     }
 
-    variables[grep(pattern = paste0("^s_s *"), variables)]
+    variables[grep(pattern = paste0("^s_.*s *"), variables)]
 
     names <- c(names1,names2)
     smooth <- post[, names]
