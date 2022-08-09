@@ -6,9 +6,9 @@
 #' @return predicted data, used by \code{marginalcoef()}
 #' @import stringi
 #' @import stringr
-generate_pred <- function(object, length = 100){
+generate_pred <- function(object, length = 100, hsformula){
   mf <- model.frame(object) # data in object
-
+  if(!missingArg(hsformula)) object$formula <- hsformula
   ## smooth term
   smterm <- brmsterms(object$formula)$dpars$mu$sm # smooth term
   stopifnot(!is.null(smterm)) # check

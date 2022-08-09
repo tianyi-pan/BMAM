@@ -8,7 +8,7 @@ Description: Fit Bayesian Marginal Additive Model (BMAM) based on brms and brmsm
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Imports: 
     brms,
     brmsmargins,
@@ -20,4 +20,3 @@ Imports:
     posterior,
     stringi,
     stringr
-    

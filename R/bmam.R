@@ -51,13 +51,28 @@
 bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TRUE,
                  backtrans = c("response", "linear", "identity",
                                "invlogit", "exp", "square", "inverse"),
-                 centered = FALSE, k = 100, ...) {
+                 centered = FALSE, k = 100, horseshoe = FALSE,...) {
   if (isFALSE(object$backend) == "cmdstanr") {
     stop("We only support cmdstanr. Please change backend of brms to cmdstanr by backend = \"cmdstanr\" ")
   }
 
+
   ## check smooth term
   smooth <- !is.null(brmsterms(object$formula)$dpars$mu$sm)
+
+
+  if(horseshoe){
+    f2 <- object$formula$pforms$b
+    f1 <- object$formula$pforms$a
+
+    ff <- eval(expr(y ~ !!f1[[3]] + !!f2[[3]]))
+    fbrms <- brmsformula(bf(ff),family = bernoulli(link = "logit"))
+
+    smooth <- !is.null(brmsterms(fbrms)$dpars$mu$sm)
+    message("horseshoe prior")
+  }
+
+
 
   ## checks and assertions
   brmsmargins:::.assertbrmsfit(object)
@@ -67,7 +82,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
   }
 
   ## predicted data
-  if (missingArg(preddat)) preddat <- generate_pred(object, length)
+  if (missingArg(preddat)) preddat <- generate_pred(object, length, hsformula = fbrms)
 
   ## assert the assumed family / distribution is a supported one
   brmsmargins:::.assertfamily(object)
@@ -101,8 +116,8 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
 
   # see prediction function.
   # get the predictive posterior distribution of \mu
-  mu <- brmsmargins::prediction(
-    object, data = mf,
+  mu <- prediction(
+    object, data = mf,horseshoe = horseshoe,
     summarize = FALSE, posterior = TRUE,
     effects = "integrateoutRE", backtrans = backtrans,
     k = k, raw = TRUE)
@@ -126,7 +141,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
     # Z <- do.call(cbind,standata[Z_name])
 
     ## Zs: basis function for smooth term (ncol = k-2)
-    Zs_name <- data_names[grep(pattern = "Zs_\\d_\\d", data_names)]
+    Zs_name <- data_names[grep(pattern = "Zs.*\\d_\\d", data_names)]
     Zs <- do.call(cbind, standata[Zs_name])
     ## set names for Zs
     Zs_name_list <- mapply(function(i,j)paste(j,seq_len(i),sep="_alpha_"),
@@ -137,7 +152,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
 
 
     ## Xs: basis function for smooth term, without penalty (ncol = 1)
-    Xs_name <- data_names[grep(pattern = "Xs", data_names)]
+    Xs_name <- data_names[grep(pattern = "Xs.*", data_names)]
     Xs <- do.call(cbind, standata[Xs_name])
     ## set names for Xs
     Xs_name_list <- mapply(function(i,j)paste(j,seq_len(i),"alpha",sep="_"),
@@ -209,16 +224,32 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
       object <- restructure(object)
       prep <- prepare_predictions(object, newdata = preddat,check_response = FALSE, re_formula = NA)
 
-      ## Xs: basis function for smooth term, without penalty (ncol = 1)
-      pred_Xs <- prep$dpars$mu$sm$fe$Xs
+      if(horseshoe){
+        ## Xs: basis function for smooth term, without penalty (ncol = 1)
+        pred_Xs <- prep$nlpars$b$sm$fe$Xs
 
-      ## Zs: basis function for smooth term (ncol = k-2)
-      pred_Zs <- sapply(prep$dpars$mu$sm$re, function(re.)re.$Zs)
-      pred_Zs <- do.call(cbind, pred_Zs)
+        ## Zs: basis function for smooth term (ncol = k-2)
+        pred_Zs <- sapply(prep$nlpars$b$sm$re, function(re.)re.$Zs)
+        pred_Zs <- do.call(cbind, pred_Zs)
 
-      ## X: linear term, for example intercept + x1 + x2 + x1:x2
-      pred_X <- prep$dpars$mu$fe$X
-      pred_B <- cbind(pred_X, pred_Xs, pred_Zs)
+        ## X: linear term, for example intercept + x1 + x2 + x1:x2
+        pred_X <- prep$nlpars$a$fe$X
+        pred_B <- cbind(pred_X, pred_Xs, pred_Zs)
+
+      }else{
+        ## Xs: basis function for smooth term, without penalty (ncol = 1)
+        pred_Xs <- prep$dpars$mu$sm$fe$Xs
+
+        ## Zs: basis function for smooth term (ncol = k-2)
+        pred_Zs <- sapply(prep$dpars$mu$sm$re, function(re.)re.$Zs)
+        pred_Zs <- do.call(cbind, pred_Zs)
+
+        ## X: linear term, for example intercept + x1 + x2 + x1:x2
+        pred_X <- prep$dpars$mu$fe$X
+        pred_B <- cbind(pred_X, pred_Xs, pred_Zs)
+      }
+
+
 
       if(centered) pred_B <- sweep(pred_B,2,colMeans(pred_B),'-') # Return centered smooths.
 
