@@ -52,7 +52,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
                  backtrans = c("response", "linear", "identity",
                                "invlogit", "exp", "square", "inverse"),
                  centered = FALSE, k = 100, horseshoe = FALSE,...) {
-  if (isFALSE(object$backend) == "cmdstanr") {
+  if (isFALSE(object$backend == "cmdstanr")) {
     stop("We only support cmdstanr. Please change backend of brms to cmdstanr by backend = \"cmdstanr\" ")
   }
 
@@ -60,7 +60,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
   ## check smooth term
   smooth <- !is.null(brmsterms(object$formula)$dpars$mu$sm)
 
-
+  fbrms <- NULL
   if(horseshoe){
     f2 <- object$formula$pforms$b
     f1 <- object$formula$pforms$a

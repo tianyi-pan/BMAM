@@ -2,8 +2,6 @@
 % Please edit documentation in R/builders_hs.R
 \name{builders}
 \alias{builders}
-\alias{.namesL_hs}
-\alias{.buildL_hs}
 \alias{.namesSD_hs}
 \alias{.buildSD_hs}
 \alias{.namesZ_hs}
@@ -12,10 +10,6 @@
 Modification from builder.r in brmsmargins
 For horseshoe prior}
 \usage{
-.namesL_hs(ranef, nlpar)
-
-.buildL_hs(data, ranef, nlpar)
-
 .namesSD_hs(ranef, block)
 
 .buildSD_hs(data, ranef, block)
@@ -28,12 +22,12 @@ For horseshoe prior}
 \item{ranef}{A data set with information about the model object random effects.
 Only used for \code{.namesSD} and \code{.buildSD}.}
 
+\item{block}{Which random effect block to use. An integer.}
+
 \item{data}{A data object. For example the result of [make_standata()]
 for [.buildZ()], which is a list,
 or a dataset of the posterior draws such as from [as_draws_df()]
 for [.buildL()] and [.buildSD()].}
-
-\item{block}{Which random effect block to use. An integer.}
 
 \item{number}{The number of elements in that random effect block. An integer.}
 
@@ -49,8 +43,6 @@ They are not intended for general use.
 }
 \details{
 \itemize{
-  \item{\code{.namesL_hs}}{Generate names of an L matrix from \code{brms}. Create the variable names for the Cholesky decomposition of the random effects correlation matrix in \code{brms}. Note that \code{brms} returns the lower triangular matrix and we want the upper triangular matrix, so the names are transposed. The results can then be passed to the \code{tab2mat} function to convert the row vector into a matrix.}
-  \item{\code{.buildL_hs}}{Returns the L matrix object. Rows are posterior draws.}
   \item{\code{.namesSD_hs}}{Create the names of random effect standard deviation estimates.}
   \item{\code{.buildSD_hs}}{Return matrix of random effect standard deviation estimates. Rows are posterior draws.}
   \item{\code{.namesZ_hs}}{Create the names of random effects data for predictions.}

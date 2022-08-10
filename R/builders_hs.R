@@ -8,8 +8,6 @@
 #'
 #' @details
 #' \itemize{
-#'   \item{\code{.namesL_hs}}{Generate names of an L matrix from \code{brms}. Create the variable names for the Cholesky decomposition of the random effects correlation matrix in \code{brms}. Note that \code{brms} returns the lower triangular matrix and we want the upper triangular matrix, so the names are transposed. The results can then be passed to the \code{tab2mat} function to convert the row vector into a matrix.}
-#'   \item{\code{.buildL_hs}}{Returns the L matrix object. Rows are posterior draws.}
 #'   \item{\code{.namesSD_hs}}{Create the names of random effect standard deviation estimates.}
 #'   \item{\code{.buildSD_hs}}{Return matrix of random effect standard deviation estimates. Rows are posterior draws.}
 #'   \item{\code{.namesZ_hs}}{Create the names of random effects data for predictions.}
@@ -31,27 +29,7 @@
 #' @name builders
 
 
-## make Rcmd check happy
-utils::globalVariables(c("Block", "Row", "Col"))
 
-#' @rdname builders
-#' @importFrom data.table as.data.table
-.namesL_hs <- function(ranef, nlpar) {
-  paste0("cor","_",ranef$group[1],"__",nlpar,"_",ranef$coef[1],"__",nlpar,"_",ranef$coef[2])
-}
-
-## make Rcmd check happy
-utils::globalVariables(c("..n"))
-
-#' @rdname builders
-.buildL_hs <- function(data, ranef, nlpar) {
-  stopifnot(is.data.table(data))
-  n <- .namesL_hs(ranef, nlpar)
-
-  out <- as.matrix(cbind(1,data[, ..n],1,data[, ..n]))
-
-  return(out)
-}
 
 ## make Rcmd check happy
 utils::globalVariables(c("group", "coef", "id"))

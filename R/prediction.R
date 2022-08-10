@@ -156,7 +156,7 @@ prediction <- function(object, data, summarize = TRUE, posterior = FALSE,
           if(length(nlpar) != 1) stop("Put random effect terms into one lf(), nlf() or bf().")
           d2[[i]] <- .buildZ_hs(data = dtmp, block = useblock, number = num, nlpar = nlpar)
           sd[[i]] <- .buildSD_hs(data = post, ranef = usere, block = useblock)
-          L[[i]] <- .buildL_hs(data = post,ranef = usere, nlpar = nlpar)
+          L[[i]] <- brmsmargins:::.buildL(data = post, block = useblock, number = num)
         }else{
           d2[[i]] <- brmsmargins:::.buildZ(data = dtmp, block = useblock, number = num, dpar = dpar)
           sd[[i]] <- brmsmargins:::.buildSD(data = post, ranef = usere, block = useblock, dpar = dpar)

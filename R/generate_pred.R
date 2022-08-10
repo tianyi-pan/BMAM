@@ -8,7 +8,7 @@
 #' @import stringr
 generate_pred <- function(object, length = 100, hsformula){
   mf <- model.frame(object) # data in object
-  if(!missingArg(hsformula)) object$formula <- hsformula
+  if(!is.null(hsformula)) object$formula <- hsformula
   ## smooth term
   smterm <- brmsterms(object$formula)$dpars$mu$sm # smooth term
   stopifnot(!is.null(smterm)) # check
