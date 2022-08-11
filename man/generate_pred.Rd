@@ -10,6 +10,8 @@ generate_pred(object, length = 100, hsformula)
 \item{object}{Objects of Class 'brms'}
 
 \item{length}{number of observations in the generated data}
+
+\item{hsformula}{formula only used when horseshoe prior is set by brms.horseshoe()}
 }
 \value{
 predicted data, used by \code{marginalcoef()}

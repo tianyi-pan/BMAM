@@ -51,26 +51,37 @@
 bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TRUE,
                  backtrans = c("response", "linear", "identity",
                                "invlogit", "exp", "square", "inverse"),
-                 centered = FALSE, k = 100, horseshoe = FALSE,...) {
+                 centered = FALSE, k = 100,...) {
   if (isFALSE(object$backend == "cmdstanr")) {
     stop("We only support cmdstanr. Please change backend of brms to cmdstanr by backend = \"cmdstanr\" ")
   }
 
 
-  ## check smooth term
-  smooth <- !is.null(brmsterms(object$formula)$dpars$mu$sm)
 
-  fbrms <- NULL
+  hsformula <- NULL
+
+  ## check horseshoe
+  horseshoe = FALSE
+  if(any(grepl("horseshoe.*", object$prior[,1]))) horseshoe = TRUE
   if(horseshoe){
+    if(is.null(object$formula$pforms$b)) stop("Incorrectly set horseshoe prior. Please see ?brms.horseshoe")
+
+
     f2 <- object$formula$pforms$b
     f1 <- object$formula$pforms$a
 
-    ff <- eval(expr(y ~ !!f1[[3]] + !!f2[[3]]))
-    fbrms <- brmsformula(bf(ff),family = bernoulli(link = "logit"))
+    ff <- eval(expr(!!as.symbol(object$formula$resp) ~ !!f1[[3]] + !!f2[[3]]))
+    hsformula <- brmsformula(bf(ff),family = bernoulli(link = "logit"))
 
-    smooth <- !is.null(brmsterms(fbrms)$dpars$mu$sm)
     message("horseshoe prior")
+
+    ## check smooth term
+    smooth <- !is.null(brmsterms(hsformula)$dpars$mu$sm)
+  }else{
+    ## check smooth term
+    smooth <- !is.null(brmsterms(object$formula)$dpars$mu$sm)
   }
+
 
 
 
@@ -78,11 +89,11 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
   brmsmargins:::.assertbrmsfit(object)
 
   if (isFALSE(brmsmargins:::is.random(object))) {
-    stop("object must have random effects to use marginalcoef()")
+    stop("object must have random effects")
   }
 
   ## predicted data
-  if (missingArg(preddat)) preddat <- generate_pred(object, length, hsformula = fbrms)
+  if (missingArg(preddat)) preddat <- generate_pred(object, length, hsformula = hsformula)
 
   ## assert the assumed family / distribution is a supported one
   brmsmargins:::.assertfamily(object)

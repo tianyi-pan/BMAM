@@ -13,7 +13,6 @@ bmam(
   backtrans = c("response", "linear", "identity", "invlogit", "exp", "square", "inverse"),
   centered = FALSE,
   k = 100,
-  horseshoe = FALSE,
   ...
 )
 }

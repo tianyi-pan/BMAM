@@ -2,6 +2,7 @@
 #'
 #' @param object Objects of Class 'brms'
 #' @param length number of observations in the generated data
+#' @param hsformula formula only used when horseshoe prior is set by brms.horseshoe()
 #'
 #' @return predicted data, used by \code{marginalcoef()}
 #' @import stringi

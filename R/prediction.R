@@ -151,7 +151,7 @@ prediction <- function(object, data, summarize = TRUE, posterior = FALSE,
         usere <- re[id == useblock]
         num <- max(usere$cn)
         if(horseshoe){
-          if(nrow(usere) != 2) stop("SORRY! Horeshoe prior is only supported in model with 2-dim random effect NOW. Please waiting for further update. ")
+          # if(nrow(usere) != 2) stop("SORRY! Horeshoe prior is only supported in model with 2-dim random effect NOW. Please waiting for further update. ")
           nlpar <- unique(usere$nlpar)
           if(length(nlpar) != 1) stop("Put random effect terms into one lf(), nlf() or bf().")
           d2[[i]] <- .buildZ_hs(data = dtmp, block = useblock, number = num, nlpar = nlpar)
