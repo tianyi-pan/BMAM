@@ -45,7 +45,6 @@
 #' @importFrom brms make_standata
 #' @importFrom methods missingArg
 #' @import brmsmargins
-#' @import data.table
 #' @export
 #'
 bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TRUE,

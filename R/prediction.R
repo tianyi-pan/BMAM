@@ -76,7 +76,7 @@ prediction <- function(object, data, summarize = TRUE, posterior = FALSE,
                        effects = c("fixedonly", "includeRE", "integrateoutRE"),
                        backtrans = c("response", "linear", "identity",
                                      "invlogit", "exp", "square", "inverse"),
-                       k = 100L, raw = FALSE, horseshoe =FALSE, ...) {
+                       k = 100L, raw = FALSE, horseshoe = FALSE, ...) {
   ## checks and assertions
   brmsmargins:::.assertbrmsfit(object)
   brmsmargins:::.assertdpar(object, dpar = dpar)
