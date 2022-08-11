@@ -27,7 +27,7 @@
 #'   for all \code{.build} functions.
 #' @keywords internal
 #' @name builders
-
+NULL
 
 
 
@@ -36,7 +36,7 @@ utils::globalVariables(c("group", "coef", "id"))
 
 #' @rdname builders
 .namesSD_hs <- function(ranef, block) {
-  stopifnot(is.data.table(ranef))
+  stopifnot(data.table::is.data.table(ranef))
   n <- ranef[id == block]
 
   n[, sprintf("sd_%s__%s_%s", group, nlpar, coef)]
@@ -44,7 +44,7 @@ utils::globalVariables(c("group", "coef", "id"))
 
 #' @rdname builders
 .buildSD_hs <- function(data, ranef, block) {
-  stopifnot(is.data.table(data))
+  stopifnot(data.table::is.data.table(data))
   n <- .namesSD_hs(ranef, block)
   as.matrix(data[, ..n])
 }
