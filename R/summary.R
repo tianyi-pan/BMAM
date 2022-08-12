@@ -116,3 +116,89 @@ print.bmamfit <- function(object,...){
 }
 
 
+#' Personal Preference Based Bayesian Summary. Function in brmsmargins but change default CIType to "ETI".
+#'
+#' Returns a summary of a posterior distribution for a single
+#' parameter / value. It is based on personal preference. Notably, it does not
+#' only use \code{bayestestR::describe_posterior}, an excellent function,
+#' because of the desire to also describe the percentage of the full posterior
+#' distribution that is at or exceeding the value of a
+#' Minimally Important Difference (MID). MIDs are used in clinical studies with outcome
+#' measures where there are pre-defined differences that are considered clinically
+#' important, which is distinct from the ROPE or general credible intervals capturing
+#' uncertainty.
+#'
+#' @param x The posterior distribution of a parameter
+#' @param CI A numeric value indicating the desired width of the credible interval.
+#'   Defaults to \code{0.99} currently, but this is subject to change.
+#'   a 99% interval was chosen as the default as there have been recent arguments
+#'   made in the realm of meta science that there are, essentially, too many
+#'   false positives and that many of the \dQuote{findings} in science are not able
+#'   to be replicated.
+#'   In any case, users should ideally specify a desired CI width, and not rely on
+#'   defaults.
+#' @param CIType A character string indicating the type of credible interval, passed on
+#'   to the \code{\link[bayestestR]{ci}} function as the method for CIs.
+#' @param ROPE Either left as \code{NULL}, the default, or a numeric vector of
+#'   length 2, specifying the lower and upper thresholds for the
+#'   Region of Practical Equivalence (ROPE).
+#' @param MID Either left as \code{NULL}, the default, or a numeric vector of
+#'   length 2, specifying the lower and upper thresholds for a
+#'   Minimally Important Difference (MID). Unlike the ROPE, percentages for
+#'   the MID are calculated as at or exceeding the bounds specified by this
+#'   argument, whereas the ROPE is the percentage of the posterior at or inside
+#'   the bounds specified.
+#' @return A \code{data.table} with the mean, \code{M}
+#' \describe{
+#'   \item{M}{the mean of the posterior samples}
+#'   \item{Mdn}{the median of the posterior samples}
+#'   \item{LL}{the lower limit of the credible interval}
+#'   \item{UL}{the upper limit of the credible interval}
+#'   \item{PercentROPE}{the percentage of posterior samples falling into the ROPE}
+#'   \item{PercentMID}{the percentage of posterior samples falling at or beyond the MID}
+#'   \item{CI}{the width of the credible interval used}
+#'   \item{CIType}{the type of credible interval used (e.g., highest density interval)}
+#'   \item{ROPE}{a label describing the values included in the ROPE}
+#'   \item{MID}{a label describing the values included in the MID}
+#' }
+#' @export
+#' @importFrom bayestestR ci
+#' @importFrom data.table data.table
+#' @importFrom stats median
+#' @references
+#' Kruschke, J. K. (2018).
+#' \doi{10.1177/2515245918771304}
+#' \dQuote{Rejecting or accepting parameter values in Bayesian estimation}
+#' @examples
+#'
+#' bsummary(rnorm(1000))
+#'
+#' bsummary(rnorm(1000), ROPE = c(-.5, .5), MID = c(-1, 1))
+bsummary <- function(x, CI = 0.99, CIType = "ETI", ROPE = NULL, MID = NULL) {
+  if (isFALSE(is.numeric(x))) {
+    stop(sprintf("to be summarized x must be numeric, but %s class was found",
+                 paste(class(x), collapse = "; ")))
+  }
+  ropes <- brmsmargins:::.percent(x, window = ROPE, within = TRUE)
+  mids <- brmsmargins:::.percent(x, window = MID, within = FALSE)
+
+  m <- mean(x, na.rm = TRUE)
+  mdn <- median(x, na.rm = TRUE)
+  cis <- bayestestR::ci(x, ci = CI, method = CIType)
+  out <- data.table(
+    M = as.numeric(m),
+    Mdn = as.numeric(mdn),
+    LL = as.numeric(cis$CI_low),
+    UL = as.numeric(cis$CI_high),
+    PercentROPE = as.numeric(ropes$Percent),
+    PercentMID = as.numeric(mids$Percent),
+    CI = as.numeric(CI),
+    CIType = CIType,
+    ROPE = ropes$Label,
+    MID = mids$Label)
+
+  return(out)
+}
+
+
+

@@ -249,6 +249,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
 
         ## X: linear term, for example intercept + x1 + x2 + x1:x2
         pred_X <- prep$nlpars$a$fe$X
+        if(!is.null(prep$nlpars$b$fe$X)) pred_X <- cbind(pred_X, prep$nlpars$b$fe$X)
         pred_B <- cbind(pred_X, pred_Xs, pred_Zs)
 
       }else{
