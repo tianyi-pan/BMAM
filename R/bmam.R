@@ -57,7 +57,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
 
 
 
-  hsformula <- NULL
+  hsformula <- NULL # formula used in generate_pred()
 
   ## check horseshoe
   horseshoe = FALSE

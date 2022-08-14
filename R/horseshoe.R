@@ -22,8 +22,8 @@ brms.horseshoe <- function(shrinkage.term, nonshrinkage.term, ...){
       lf(eval(expr(b ~ !!nonshrinkage.term[[nonshrinkage.term.len]])), cmc = FALSE)
   }else{
     formula <- bf(eval(expr(!!nonshrinkage.term[[2]] ~ a + b)) , nl = TRUE) +
-      lf(eval(expr(a ~ !!shrinkage.term[[shrinkage.term.len]])), center = TRUE) +
-      lf(eval(expr(b ~ 0+!!nonshrinkage.term[[nonshrinkage.term.len]])), cmc = FALSE)
+      lf(eval(expr(a ~ 0+!!shrinkage.term[[shrinkage.term.len]])), center = TRUE) +
+      lf(eval(expr(b ~ !!nonshrinkage.term[[nonshrinkage.term.len]])), cmc = FALSE)
   }
   # if("prior" %in% names(list(...))) stop("horseshoe prior has been set")
   horseshoe_prior <- horseshoe(...)
