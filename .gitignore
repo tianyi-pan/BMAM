@@ -1,6 +1,6 @@
 .Rhistory
-.DS_Store 
-.Rapp.history 
+.DS_Store
+.Rapp.history
 *.rdb
 vignettes/*_cache
 vignettes/*_files
@@ -14,3 +14,15 @@ vignettes/.Rhistory
 .Rproj.user
 .RData
 *.Rcheck
+
+## c files
+.o
+.so
+*/.o
+*/.so
+*/*/.o
+*/*/.so
+src/*.so
+src/*.o
+
+src/.DS_Store
