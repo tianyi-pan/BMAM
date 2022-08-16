@@ -18,8 +18,8 @@ brms.horseshoe <- function(shrinkage.term, nonshrinkage.term, ...){
   ## bf for brms
   if(length(shrinkage.term) == 3){
     formula <- bf(eval(expr(!!shrinkage.term[[2]] ~ a + b)) , nl = TRUE) +
-      lf(eval(expr(a ~ 0+!!shrinkage.term[[shrinkage.term.len]])), center = TRUE) +
-      lf(eval(expr(b ~ !!nonshrinkage.term[[nonshrinkage.term.len]])), cmc = FALSE)
+      lf(eval(expr(a ~ 0+!!shrinkage.term[[shrinkage.term.len]])), center = TRUE, cmc = FALSE) +
+      lf(eval(expr(b ~ !!nonshrinkage.term[[nonshrinkage.term.len]])))
   }else{
     formula <- bf(eval(expr(!!nonshrinkage.term[[2]] ~ a + b)) , nl = TRUE) +
       lf(eval(expr(a ~ 0+!!shrinkage.term[[shrinkage.term.len]])), center = TRUE) +
