@@ -2,13 +2,14 @@
 #'
 #' @param object Objects of Class 'brms'
 #' @param length number of observations in the generated data
+#' @param hsformula formula only used when horseshoe prior is set by brms.horseshoe()
 #'
 #' @return predicted data, used by \code{marginalcoef()}
 #' @import stringi
 #' @import stringr
-generate_pred <- function(object, length = 100){
+generate_pred <- function(object, length = 100, hsformula){
   mf <- model.frame(object) # data in object
-
+  if(!is.null(hsformula)) object$formula <- hsformula
   ## smooth term
   smterm <- brmsterms(object$formula)$dpars$mu$sm # smooth term
   stopifnot(!is.null(smterm)) # check

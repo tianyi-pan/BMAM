@@ -10,8 +10,7 @@ bmam(
   length = 100,
   summarize = TRUE,
   posterior = TRUE,
-  backtrans = c("response", "linear", "identity", "invlogit", "exp", "square",
-    "inverse"),
+  backtrans = c("response", "linear", "identity", "invlogit", "exp", "square", "inverse"),
   centered = FALSE,
   k = 100,
   ...
