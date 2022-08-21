@@ -73,6 +73,7 @@ summary.bmamfit <- function(object, plot.smooth = FALSE, ...){
   names <- sapply(variables[grep(pattern = "b_ *", variables)], function(name)substring(name,3))
   if(!is.null(names)){
     linear <- post[,variables[grep(pattern = "b_ *", variables)]]
+    if(length(names) == 1) linear <- t(as.data.table(linear))
     linear_est <- as.data.table(do.call(rbind,
                                         apply(linear, 2, function(var) do.call("bsummary",c(list(x = var), object$Summary_para)))))
     linear_est$Label <- names
