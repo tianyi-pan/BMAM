@@ -26,3 +26,6 @@ src/*.so
 src/*.o
 
 src/.DS_Store
+
+# RStudio files
+.Rproj.user/
