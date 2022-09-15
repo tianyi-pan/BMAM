@@ -1,6 +1,7 @@
 #' Fit Bayesian Marginal Additive Model (BMAM)
 #'
-#' modifying \code{brmsmargins::marginalcoef} function.
+#' Fit Bayesian Marginal Additive Model (BMAM). The function is the modification
+#' of \code{brmsmargins::marginalcoef}.
 #'
 #' @param object A fitted brms model object that includes random effects.
 #'   Required.
@@ -36,8 +37,8 @@
 #'   \doi{10.1111/biom.12707} \dQuote{A note on marginalization of regression
 #'   parameters from mixed models of binary outcomes}
 #'
-#'   McGee G. & Stringer A. (2018) \dQuote{Flexible Marginal Models for Dependent
-#'   Data}
+#'   McGee G. & Stringer A. (2018) \dQuote{Flexible Marginal Models for
+#'   Dependent Data}
 #' @seealso \code{\link{brms}}, \code{\link{brmsmargins}}, \code{\link{mam}}
 #' @importFrom data.table as.data.table
 #' @importFrom stats formula

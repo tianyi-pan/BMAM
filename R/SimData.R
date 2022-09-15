@@ -39,15 +39,13 @@ get_data_mam <- function(SSmat,x1,x2,x3,K,Nk,f1,f2,beta3){
 }
 
 
-#' Title Generate simulated data
+#' Generate simulated data
 #'
-#' @param K
-#' @param Nk
+#' @param K Number of clusters
+#' @param Nk Number of units within clusters
 #'
-#' @return
+#' @return a list containing generated data and true functions.
 #' @export SimData
-#'
-#' @examples
 SimData <- function(K, Nk){
   f1temp <- function(x){(1.5*sin(pi*x)-2*x)}
 

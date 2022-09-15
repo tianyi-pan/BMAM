@@ -44,9 +44,9 @@ a dataframe contains explanatory variables, id and generated binary
 Generate binary Y
 }
 \note{
-the function reduce the \f$X\gamma\f$ into one-dim normal distributed
+the function reduce the \eqn{X\gamma} into one-dim normal distributed
   variable, and then using Gauss-Hermite Quadrature to solve delta. After
-  getting the solution, generate data based on \f$X\gamma\f$ but not the
+  getting the solution, generate data based on \eqn{X\gamma} but not the
   one-dim term. This function need include the R file Etai2Deltai1.R,
   get.GH.R, expit.R and C code source from src1.so. See more details in
   GenBinY_Summary.md and 1 dim in LME.md

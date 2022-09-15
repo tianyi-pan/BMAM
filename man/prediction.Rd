@@ -2,8 +2,7 @@
 % Please edit documentation in R/prediction.R
 \name{prediction}
 \alias{prediction}
-\title{Marginal Posterior Predictions from a 'brms' Model
-Modification from brmsmargins::prediction}
+\title{Marginal Posterior Predictions from a 'brms' Model}
 \usage{
 prediction(
   object,
@@ -83,6 +82,8 @@ full posterior distribution but also the \code{k} Monte Carlo samples
 used for the numerical integration. This cannot be used with
 \code{summarize = TRUE}.}
 
+\item{horseshoe}{Whether or not a horseshoe prior is used. Defaults to \code{FALSE}.}
+
 \item{...}{Additional arguments passed to \code{fitted()}}
 }
 \value{
@@ -90,6 +91,7 @@ A list with \code{Summary} and \code{Posterior}.
   Some of these may be \code{NULL} depending on the arguments used.
 }
 \description{
+Modification of brmsmargins::prediction to support horseshoe prior.
 Calculate marginal predictions from a \code{brms} model.
 Marginal predictions average over the input data for each posterior draw.
 Marginal predictions for models with random effects will integrate

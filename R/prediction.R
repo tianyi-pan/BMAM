@@ -1,6 +1,6 @@
 #' Marginal Posterior Predictions from a 'brms' Model
-#' Modification from brmsmargins::prediction
 #'
+#' Modification of brmsmargins::prediction to support horseshoe prior.
 #' Calculate marginal predictions from a \code{brms} model.
 #' Marginal predictions average over the input data for each posterior draw.
 #' Marginal predictions for models with random effects will integrate
@@ -54,6 +54,7 @@
 #'   full posterior distribution but also the \code{k} Monte Carlo samples
 #'   used for the numerical integration. This cannot be used with
 #'   \code{summarize = TRUE}.
+#' @param horseshoe Whether or not a horseshoe prior is used. Defaults to \code{FALSE}.
 #' @param ... Additional arguments passed to \code{fitted()}
 #' @return A list with \code{Summary} and \code{Posterior}.
 #'   Some of these may be \code{NULL} depending on the arguments used.

@@ -50,9 +50,9 @@ get.GH <- function(q, scale_abscissa = sqrt(2), scale_weight=1/sqrt(pi)) {
 ##'   response variable
 ##' @author Tianyi Pan changing the GenBinaryY function in MMLB
 ##'   package(https://github.com/mercaldo/MMLB).
-##' @note the function reduce the \f$X\gamma\f$ into one-dim normal distributed
+##' @note the function reduce the \eqn{X\gamma} into one-dim normal distributed
 ##'   variable, and then using Gauss-Hermite Quadrature to solve delta. After
-##'   getting the solution, generate data based on \f$X\gamma\f$ but not the
+##'   getting the solution, generate data based on \eqn{X\gamma} but not the
 ##'   one-dim term. This function need include the R file Etai2Deltai1.R,
 ##'   get.GH.R, expit.R and C code source from src1.so. See more details in
 ##'   GenBinY_Summary.md and 1 dim in LME.md

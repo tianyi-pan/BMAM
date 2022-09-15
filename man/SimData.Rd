@@ -2,13 +2,18 @@
 % Please edit documentation in R/SimData.R
 \name{SimData}
 \alias{SimData}
-\title{Title Generate simulated data}
+\title{Generate simulated data}
 \usage{
 SimData(K, Nk)
 }
 \arguments{
-\item{Nk}{}
+\item{K}{Number of clusters}
+
+\item{Nk}{Number of units within clusters}
+}
+\value{
+a list containing generated data and true functions.
 }
 \description{
-Title Generate simulated data
+Generate simulated data
 }
