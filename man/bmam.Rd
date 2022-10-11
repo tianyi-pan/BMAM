@@ -59,8 +59,8 @@ Objects of Class 'bmam', a list containing the fitted Bayesian
   these may be \code{NULL} depending on the arguments used.
 }
 \description{
-Fit Bayesian Marginal Additive Model (BMAM). The function is the modification
-of \code{brmsmargins::marginalcoef}.
+Fit Bayesian Marginal Additive Model (BMAM).
+The function is the modification of \code{brmsmargins::marginalcoef}.
 }
 \references{
 Hedeker, D., du Toit, S. H., Demirtas, H. & Gibbons, R. D. (2018)
