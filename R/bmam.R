@@ -12,8 +12,7 @@
 #' @param summarize A logical value, whether or not to calculate summaries of
 #'   the posterior predictions. Defaults to \code{TRUE}.
 #' @param posterior A logical value whether or not to save and return the
-#'   posterior samples. Defaults to \code{FALSE} as the assumption is a typical
-#'   use case is to return the summaries only.
+#'   posterior samples. Defaults to \code{FALSE}.
 #' @param backtrans A character string indicating the type of back
 #'   transformation to be applied. Can be one of \dQuote{response} meaning to
 #'   use the response scale, \dQuote{linear} or \dQuote{identity} meaning to use
@@ -48,7 +47,7 @@
 #' @import brmsmargins
 #' @export
 #'
-bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TRUE,
+bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FALSE,
                  backtrans = c("response", "linear", "identity",
                                "invlogit", "exp", "square", "inverse"),
                  centered = FALSE, k = 100,...) {
@@ -202,7 +201,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
     DesignMatrix = NULL, # design matrix B
     Bname = NULL, # variable names for B
     # Smooth = NULL, # fitted values
-    # Predicted = NULL, # estimates of each smooth function under different samples # reduce memory usage
+    Predicted = NULL, # estimates of each smooth function under different samples # reduce memory usage
     Predicted_Summary = NULL, # summary of estimates of each smooth function under different samples
     Family = object$family,
     Formula = object$formula,
@@ -278,11 +277,11 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TR
       # pred_B <- M_matrix %*% pred_B
 
       Predicted <- pred_B %*% beta
-      # out$Predicted <- Predicted   # reduce memory usage
       out$Predicted_Summary <- as.data.table(do.call(rbind, apply(Predicted, 1, bsummary, ...)))
     }
     if (isTRUE(posterior)) {
       out$Posterior <- beta
+      out$Predicted <- Predicted
     }
     out$Preddat <- preddat
   }
