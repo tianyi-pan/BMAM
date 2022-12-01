@@ -50,7 +50,7 @@
 bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FALSE,
                  backtrans = c("response", "linear", "identity",
                                "invlogit", "exp", "square", "inverse"),
-                 centered = FALSE, k = 100,...) {
+                 centered = FALSE, k = 100, est.fun = FALSE,...) {
   if (isFALSE(object$backend == "cmdstanr")) {
     stop("We only support cmdstanr. Please change backend of brms to cmdstanr by backend = \"cmdstanr\" ")
   }
@@ -275,6 +275,8 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FA
       # H_matrix <- ones %*% solve(t(ones) %*% ones) %*% t(ones)
       # M_matrix <- diag(1,nrow(pred_B)) - H_matrix
       # pred_B <- M_matrix %*% pred_B
+
+      if(est.fun) pred_B[,apply(pred_B, MARGIN = 2, sd) < 1e-3] <- 0
 
       Predicted <- pred_B %*% beta
       out$Predicted_Summary <- as.data.table(do.call(rbind, apply(Predicted, 1, bsummary, ...)))
