@@ -21,6 +21,8 @@ generate_pred <- function(object, length = 100, hsformula){
   ))
   smvariable <- str_replace_all(smvariable, "s\\(","")
   smvariable <- str_replace_all(smvariable, "\\)","")
+  smvariable <- str_replace_all(smvariable, ",","")
+  smvariable <- smvariable[smvariable %in% names(mf)]
 
   # smvariable <- lapply(smterm[[2]][-1], function(term.) term.[[2]]) # variable for smooth term
 
