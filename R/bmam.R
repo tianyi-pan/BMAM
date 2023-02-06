@@ -12,7 +12,7 @@
 #' @param summarize A logical value, whether or not to calculate summaries of
 #'   the posterior predictions. Defaults to \code{TRUE}.
 #' @param posterior A logical value whether or not to save and return the
-#'   posterior samples. Defaults to \code{TRUE}.
+#'   posterior samples. Defaults to \code{FALSE}.
 #' @param backtrans A character string indicating the type of back
 #'   transformation to be applied. Can be one of \dQuote{response} meaning to
 #'   use the response scale, \dQuote{linear} or \dQuote{identity} meaning to use
@@ -49,7 +49,7 @@
 #' @import brmsmargins
 #' @export
 #'
-bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TRUE,
+bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FALSE,
                  backtrans = c("response", "linear", "identity",
                                "invlogit", "exp", "square", "inverse"),
                  centered = FALSE, k = 100, est.fun = FALSE,...) {

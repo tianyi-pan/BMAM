@@ -26,12 +26,12 @@ summary.bmamfit <- function(object, plot.smooth = FALSE, ...){
   variables <- variables(object$Conditional$Brms) ## get variables of linear term
   names <- sapply(variables[grep(pattern = "^b_ *", variables)], function(name) str_replace(substring(name,3), "a_",""))
   if(!is.null(names)){
-    linear <- object$Posterior[names,]
-    if(length(names) == 1) linear <- t(as.data.table(linear))
-    linear_est <- as.data.table(do.call(rbind,
-                                        apply(linear, 1, function(var) do.call("bsummary",c(list(x = var), object$Summary_para)))))
-
-    linear_est$Label <- names
+    # linear <- object$Posterior[names,]
+    # if(length(names) == 1) linear <- t(as.data.table(linear))
+    # linear_est <- as.data.table(do.call(rbind,
+    #                                     apply(linear, 1, function(var) do.call("bsummary",c(list(x = var), object$Summary_para)))))
+    linear_est <- object$Summary[Label %in% names,]
+    # linear_est$Label <- names
     linear_est <- select(linear_est, Parameter = Label,M,Mdn,LL,UL,CI,CIType)
 
   }else{
