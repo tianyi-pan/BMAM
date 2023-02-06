@@ -1,7 +1,7 @@
 #' Fit Bayesian Marginal Additive Model (BMAM)
 #'
-#' Fit Bayesian Marginal Additive Model (BMAM).
-#' The function is the modification of \code{brmsmargins::marginalcoef}.
+#' Fit Bayesian Marginal Additive Model (BMAM). The function is the modification
+#' of \code{brmsmargins::marginalcoef}.
 #'
 #' @param object A fitted brms model object that includes random effects.
 #'   Required.
@@ -12,7 +12,7 @@
 #' @param summarize A logical value, whether or not to calculate summaries of
 #'   the posterior predictions. Defaults to \code{TRUE}.
 #' @param posterior A logical value whether or not to save and return the
-#'   posterior samples. Defaults to \code{FALSE}.
+#'   posterior samples. Defaults to \code{TRUE}.
 #' @param backtrans A character string indicating the type of back
 #'   transformation to be applied. Can be one of \dQuote{response} meaning to
 #'   use the response scale, \dQuote{linear} or \dQuote{identity} meaning to use
@@ -28,6 +28,8 @@
 #' @param k An integer providing the number of random draws to use for
 #'   integrating out the random effects. Only relevant when \code{effects} is
 #'   \dQuote{integrateoutRE}.
+#' @param est.fun Whether or not include the estimate of intercept. Default
+#'   \code{FALSE}.
 #' @param ... Additional arguments passed to \code{fitted()}
 #' @return Objects of Class 'bmam', a list containing the fitted Bayesian
 #'   marginal additive model and the results from the conditional model. Some of
@@ -47,7 +49,7 @@
 #' @import brmsmargins
 #' @export
 #'
-bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FALSE,
+bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = TRUE,
                  backtrans = c("response", "linear", "identity",
                                "invlogit", "exp", "square", "inverse"),
                  centered = FALSE, k = 100, est.fun = FALSE,...) {
