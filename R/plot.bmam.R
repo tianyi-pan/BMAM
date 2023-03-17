@@ -57,7 +57,7 @@ plot.bmamfit <- function(object, compared.model, conditional = TRUE, display = T
                           lci = object$Predicted_Summary$LL[index],
                           Method = rep(c("BMAM"), each = length(index)))
     gg$BMAM[[i]] <- ggplot(data=dfplotM,aes(x=x,y=fitted))+
-      geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
+      geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method),alpha=0.2, size = 0.3, colour = NA)+
       geom_line(aes(colour = Method), size = 1)+
       xlab(var)+
       ylab(expression(f~(X)))+
@@ -135,7 +135,7 @@ plot.bmamfit <- function(object, compared.model, conditional = TRUE, display = T
 
 
       gg$Compared.Model$Compared.Model[[i]] <- ggplot(data=dfplotC,aes(x=x,y=fitted))+
-        geom_ribbon(aes(ymin=lci,ymax=uci, fill=Method, colour= Method),alpha=0.2, size = 0.3)+
+        geom_ribbon(aes(ymin=lci,ymax=uci, fill=Method),alpha=0.2, size = 0.3, colour = NA)+
         geom_line(aes(colour = Method), size = 1)+
         xlab(var)+
         ylab(expression(f~(X)))+
@@ -167,7 +167,7 @@ plot.bmamfit <- function(object, compared.model, conditional = TRUE, display = T
 
     if(exists("dfplotBoth")){
       gg$Compared.Model$Comparison[[i]] <- ggplot(data=dfplotBoth,aes(x=x,y=fitted, group=Method))+
-        geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
+        geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method),alpha=0.2, size = 0.3, colour = NA)+
         geom_line(aes(colour = Method), size = 1)+
         xlab(var)+
         ylab(expression(f~(X))) +
@@ -193,13 +193,15 @@ plot.bmamfit <- function(object, compared.model, conditional = TRUE, display = T
       if(!missingArg(smooth.function)){
         values <- c("black", "coral", "deepskyblue")
         breaks <- c("True Value", "BMAM", dfplotConditional$Method[1])
+        labels <- c("True Value", "Marginal", "Conditional")
       }else{
         values <- c("coral", "deepskyblue")
         breaks <- c("BMAM", dfplotConditional$Method[1])
+        labels <- c("Marginal", "Conditional")
       }
 
       gg$Conditional$Conditional.Model[[i]] <- ggplot(data=dfplotConditional,aes(x=x,y=fitted))+
-        geom_ribbon(aes(ymin=lci,ymax=uci, fill=Method, colour= Method),alpha=0.2, size = 0.3)+
+        geom_ribbon(aes(ymin=lci,ymax=uci, fill=Method),alpha=0.2, size = 0.3, colour = NA)+
         geom_line(aes(colour = Method), size = 1)+
         xlab(var)+
         ylab(expression(f~(X)))+
@@ -209,13 +211,13 @@ plot.bmamfit <- function(object, compared.model, conditional = TRUE, display = T
 
 
       gg$Conditional$Comparison[[i]] <- ggplot(data=dfplotBoth,aes(x=x,y=fitted, group=Method))+
-        geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method, colour= Method),alpha=0.2, size = 0.3)+
+        geom_ribbon(aes(ymin=lci,ymax=uci,fill=Method),alpha=0.2, size = 0.3, colour = NA)+
         geom_line(aes(colour = Method), size = 1)+
         xlab(var)+
         ylab(expression(f~(X))) +
-        scale_colour_manual(values = values, breaks = breaks)+
-        scale_fill_manual(values = values, breaks = breaks)+
-        ggtitle("BMAM v.s. Conditional Model")
+        scale_colour_manual(values = values, breaks = breaks, labels = labels)+
+        scale_fill_manual(values = values, breaks = breaks, labels = labels)+
+        ggtitle("BMAM: Marginal v.s. Conditional Model")
 
       remove(dfplotBoth)
     }
