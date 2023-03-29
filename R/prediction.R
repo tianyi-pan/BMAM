@@ -1,71 +1,63 @@
 #' Marginal Posterior Predictions from a 'brms' Model
 #'
-#' Modification of brmsmargins::prediction to support horseshoe prior.
-#' Calculate marginal predictions from a \code{brms} model.
-#' Marginal predictions average over the input data for each posterior draw.
-#' Marginal predictions for models with random effects will integrate
-#' over random effects.
+#' Modification of brmsmargins::prediction to support horseshoe prior. Calculate
+#' marginal predictions from a \code{brms} model. Marginal predictions average
+#' over the input data for each posterior draw. Marginal predictions for models
+#' with random effects will integrate over random effects.
 #'
 #' @param object A fitted brms model object. Required.
-#' @param data A data frame or data table passed to \code{fitted()}
-#'   as the new data to be used for predictions. Required.
-#' @param summarize A logical value, whether or not to
-#'   calculate summaries of the posterior predictions.
-#'   Defaults to \code{TRUE}.
-#' @param posterior A logical value whether or not to
-#'   save and return the posterior samples. Defaults
-#'   to \code{FALSE} as the assumption is a typical
+#' @param data A data frame or data table passed to \code{fitted()} as the new
+#'   data to be used for predictions. Required.
+#' @param summarize A logical value, whether or not to calculate summaries of
+#'   the posterior predictions. Defaults to \code{TRUE}.
+#' @param posterior A logical value whether or not to save and return the
+#'   posterior samples. Defaults to \code{FALSE} as the assumption is a typical
 #'   use case is to return the summaries only.
-#' @param index An optional integer vector, giving the posterior draws
-#'   to be used in the calculations. If omitted, defaults to all
-#'   posterior draws.
-#' @param dpar Parameter passed on the \code{dpar}
-#'   argument of \code{fitted()} in brms. Defaults to \code{NULL}
-#'   indicating the mean or location parameter typically.
-#' @param resample An integer indicating the number of
-#'   bootstrap resamples of the posterior predictions to
-#'   use when calculating summaries. Defaults to \code{0L}.
-#'   See documentation from [.averagePosterior()] for more details.
-#' @param resampleseed A seed for random number generation. Defaults to \code{FALSE},
-#'   which means no seed is set.
-#'   Only used if \code{resample} is a positive, non-zero integer.
-#'   See documentation from [.averagePosterior()] for more details.
-#' @param effects A character string indicating the type of
-#'   prediction to be made. Can be one of
-#'   \dQuote{fixedonly} meaning only use fixed effects,
-#'   \dQuote{includeRE} meaning that random effects should be
-#'   included in the predictions, or
-#'   \dQuote{integrateoutRE} meaning that random effects should be
-#'    integrated out / over in the predictions.
-#' @param backtrans A character string indicating the type of
-#'   back transformation to be applied. Can be one of
-#'   \dQuote{response} meaning to use the response scale,
-#'   \dQuote{linear} or \dQuote{identity} meaning to use the linear predictor scale,
-#'   or a specific back transformation desired, from a possible list of
-#'   \dQuote{invlogit}, \dQuote{exp}, \dQuote{square}, or \dQuote{inverse}.
-#'   Custom back transformations should only be needed if, for example,
-#'   the outcome variable was transformed prior to fitting the model.
+#' @param index An optional integer vector, giving the posterior draws to be
+#'   used in the calculations. If omitted, defaults to all posterior draws.
+#' @param dpar Parameter passed on the \code{dpar} argument of \code{fitted()}
+#'   in brms. Defaults to \code{NULL} indicating the mean or location parameter
+#'   typically.
+#' @param resample An integer indicating the number of bootstrap resamples of
+#'   the posterior predictions to use when calculating summaries. Defaults to
+#'   \code{0L}. See documentation from [.averagePosterior()] for more details.
+#' @param resampleseed A seed for random number generation. Defaults to
+#'   \code{FALSE}, which means no seed is set. Only used if \code{resample} is a
+#'   positive, non-zero integer. See documentation from [.averagePosterior()]
+#'   for more details.
+#' @param effects A character string indicating the type of prediction to be
+#'   made. Can be one of \dQuote{fixedonly} meaning only use fixed effects,
+#'   \dQuote{includeRE} meaning that random effects should be included in the
+#'   predictions, or \dQuote{integrateoutRE} meaning that random effects should
+#'   be integrated out / over in the predictions.
+#' @param backtrans A character string indicating the type of back
+#'   transformation to be applied. Can be one of \dQuote{response} meaning to
+#'   use the response scale, \dQuote{linear} or \dQuote{identity} meaning to use
+#'   the linear predictor scale, or a specific back transformation desired, from
+#'   a possible list of \dQuote{invlogit}, \dQuote{exp}, \dQuote{square}, or
+#'   \dQuote{inverse}. Custom back transformations should only be needed if, for
+#'   example, the outcome variable was transformed prior to fitting the model.
 #' @param k An integer providing the number of random draws to use for
-#'   integrating out the random effects. Only relevant when \code{effects}
-#'   is \dQuote{integrateoutRE}.
-#' @param raw A logical value indicating whether to return the raw output or
-#'   to average over the Monte Carlo samples. Defaults to \code{FALSE}.
-#'   Setting it to \code{TRUE} can be useful if you want not only the
-#'   full posterior distribution but also the \code{k} Monte Carlo samples
-#'   used for the numerical integration. This cannot be used with
-#'   \code{summarize = TRUE}.
-#' @param horseshoe Whether or not a horseshoe prior is used. Defaults to \code{FALSE}.
+#'   integrating out the random effects. Only relevant when \code{effects} is
+#'   \dQuote{integrateoutRE}.
+#' @param raw A logical value indicating whether to return the raw output or to
+#'   average over the Monte Carlo samples. Defaults to \code{FALSE}. Setting it
+#'   to \code{TRUE} can be useful if you want not only the full posterior
+#'   distribution but also the \code{k} Monte Carlo samples used for the
+#'   numerical integration. This cannot be used with \code{summarize = TRUE}.
+#' @param horseshoe Whether or not a horseshoe prior is used. Defaults to
+#'   \code{FALSE}.
 #' @param ... Additional arguments passed to \code{fitted()}
-#' @return A list with \code{Summary} and \code{Posterior}.
-#'   Some of these may be \code{NULL} depending on the arguments used.
-#' @references
-#' Pavlou, M., Ambler, G., Seaman, S., & Omar, R. Z. (2015)
-#' \doi{10.1186/s12874-015-0046-6}
-#' \dQuote{A note on obtaining correct marginal predictions from a random intercepts model for binary outcomes}
-#' and
-#' Skrondal, A., & Rabe-Hesketh, S. (2009)
-#' \doi{10.1111/j.1467-985X.2009.00587.x}
-#' \dQuote{Prediction in multilevel generalized linear models}
+#' @return A list with \code{Summary} and \code{Posterior}. Some of these may be
+#'   \code{NULL} depending on the arguments used.
+#' @references Wiley J, Hedeker D (2022). brmsmargins: Bayesian Marginal Effects
+#' for 'brms' Models. https://joshuawiley.com/brmsmargins/,
+#' https://github.com/JWiley/brmsmargins. Pavlou, M., Ambler, G., Seaman, S., &
+#' Omar, R. Z. (2015) \doi{10.1186/s12874-015-0046-6} \dQuote{A note on
+#' obtaining correct marginal predictions from a random intercepts model for
+#' binary outcomes} and Skrondal, A., & Rabe-Hesketh, S. (2009)
+#' \doi{10.1111/j.1467-985X.2009.00587.x} \dQuote{Prediction in multilevel
+#' generalized linear models}
 #' @importFrom data.table as.data.table
 #' @importFrom stats fitted formula
 #' @importFrom posterior as_draws_df ndraws

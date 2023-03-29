@@ -232,13 +232,12 @@ plot.bmamfit <- function(object, compared.model, conditional = TRUE, display = T
 
     ## choose which plot will be shown
     if(!missingArg(compared.model)){
-
-      if(conditional){
-        gg_display <- list(gg$Conditional$Comparison, gg$Compared.Model$Comparison)
-      }else{
-        gg_display <- list(gg$Compared.Model$Comparison)
-      }
-
+      gg_display <- list(gg$Compared.Model$Comparison)
+      # if(conditional){
+      #   gg_display <- list(gg$Conditional$Comparison, gg$Compared.Model$Comparison)
+      # }else{
+      #   gg_display <- list(gg$Compared.Model$Comparison)
+      # }
     } else{
 
       if(conditional){

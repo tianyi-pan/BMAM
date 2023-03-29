@@ -4,12 +4,15 @@
 \alias{summary.bmamfit}
 \title{summary() Method for Objects of Class 'bmamfit'}
 \usage{
-\method{summary}{bmamfit}(object, plot.smooth = FALSE, ...)
+\method{summary}{bmamfit}(object, plot.smooth = FALSE, digits = 3, ...)
 }
 \arguments{
 \item{object}{Objects of Class 'bmamfit'}
 
 \item{plot.smooth}{Whether or not to plot bmam}
+
+\item{digits}{number of signigicant digits, passing to \code{options()}.
+Defaults to 3}
 
 \item{...}{Additional arguments passed to \code{plot.bmam()}}
 }

@@ -72,6 +72,11 @@ Hedeker, D., du Toit, S. H., Demirtas, H. & Gibbons, R. D. (2018)
 
   McGee G. & Stringer A. (2018) \dQuote{Flexible Marginal Models for
   Dependent Data}
+
+  Wiley J, Hedeker D (2022). brmsmargins: Bayesian Marginal Effects for
+  'brms' Models. https://joshuawiley.com/brmsmargins/,
+  https://github.com/JWiley/brmsmargins. Pavlou, M., Ambler, G., Seaman, S.,
+  &
 }
 \seealso{
 \code{\link{brms}}, \code{\link{brmsmargins}}, \code{\link{mam}}
