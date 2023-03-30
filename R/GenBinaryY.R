@@ -1,5 +1,5 @@
 ### Auxiliary functions ####################
-##' @title Generate binary response variable of GLMM model based on a known Marginalized model
+##' @title Generate binary response variable of GLMM model based on a known Marginalized model. The function is from package MMLB (https://github.com/mercaldo/MMLB)
 ##' @useDynLib bmam DeconvolveGH_CALL1
 Etai2Deltai1 <-function(etai, gamma, sigma, q.points, Z, W){
   expit <- function(aa){exp(aa)/(1+exp(aa))}

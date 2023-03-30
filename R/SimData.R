@@ -1,4 +1,3 @@
-## TO DO: make it flexible to support more models.
 ## functions in mam paper (https://github.com/awstringer1/mam-paper-code)
 
 get_data_mam <- function(SSmat,x1,x2,x3,K,Nk,f1,f2,beta3){

@@ -2,10 +2,10 @@
 % Please edit documentation in R/GenBinaryY.R
 \name{Etai2Deltai1}
 \alias{Etai2Deltai1}
-\title{Generate binary response variable of GLMM model based on a known Marginalized model}
+\title{Generate binary response variable of GLMM model based on a known Marginalized model. The function is from package MMLB (https://github.com/mercaldo/MMLB)}
 \usage{
 Etai2Deltai1(etai, gamma, sigma, q.points, Z, W)
 }
 \description{
-Generate binary response variable of GLMM model based on a known Marginalized model
+Generate binary response variable of GLMM model based on a known Marginalized model. The function is from package MMLB (https://github.com/mercaldo/MMLB)
 }
