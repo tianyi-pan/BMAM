@@ -1,5 +1,5 @@
 # BMAM
-Bayesian Marginal Additive Model (BMAM) based on brms and brmsmargins
+Bayesian Marginal Additive Model (BMAM) based on [brms](https://github.com/paul-buerkner/brms) and [brmsmargins](https://github.com/JWiley/brmsmargins)
 
 ## Installation
 
