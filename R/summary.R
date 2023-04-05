@@ -18,11 +18,11 @@ summary.bmamfit <- function(object, plot.smooth = FALSE, digits = 3, ...){
 
   ### 1. Marginal Model ##################
   ## smooth term
-  smooth_est <- lapply(object$Bname, function(name){
-    object$Summary[object$Summary$Label %in% name,] %>% select(Parameter = Label,M,Mdn,LL,UL,CI,CIType)
-  })
-  smterm <- brmsterms(object$Formula)$dpars$mu$sm # smooth term
-  names(smooth_est) <- as.character(smterm[[2]][-1])
+  # smooth_est <- lapply(object$Bname, function(name){
+  #   object$Summary[object$Summary$Label %in% name,] %>% select(Parameter = Label,M,Mdn,LL,UL,CI,CIType)
+  # })
+  # smterm <- brmsterms(object$Formula)$dpars$mu$sm # smooth term
+  # names(smooth_est) <- as.character(smterm[[2]][-1])
 
   ## linear term
   variables <- variables(object$Conditional$Brms) ## get variables of linear term
@@ -40,8 +40,8 @@ summary.bmamfit <- function(object, plot.smooth = FALSE, digits = 3, ...){
     linear_est <- NULL
   }
 
-  BMAM <- list(Linear = linear_est,
-               Smooth = smooth_est)
+  BMAM <- list(Linear = linear_est)
+               # Smooth = smooth_est)
 
 
 
@@ -49,27 +49,27 @@ summary.bmamfit <- function(object, plot.smooth = FALSE, digits = 3, ...){
   post <- as_draws_matrix(object$Conditional$Brms)
 
   ## smooth term
-  smooth_est <- vector("list",length = length(object$Bname))
-  for(i in seq_along(object$Bname)){
-
-    if(length(object$Bname) == 1) {
-      names1 <- variables[grep(pattern = paste0("^bs_.*s",as.character(smterm[[2]][2])," *"), variables)]
-      names2<- variables[grep(pattern = paste0("^s_.*s",as.character(smterm[[2]][2]),"_\\d *"), variables)]
-    }else{
-      names1 <- variables[grep(pattern = paste0("^bs_.*s",as.character(smterm[[2]][[i+1]][[2]])," *"), variables)]
-      names2<- variables[grep(pattern = paste0("^s_.*s",as.character(smterm[[2]][[i+1]][[2]]),"_\\d *"), variables)]
-    }
-
-    variables[grep(pattern = paste0("^s_.*s *"), variables)]
-
-    names <- c(names1,names2)
-    smooth <- post[, names]
-    smooth_est_i <- as.data.table(do.call(rbind,
-                                          apply(smooth, 2, function(var) do.call("bsummary",c(list(x = var), object$Summary_para)))))
-    smooth_est_i$Label <- object$Bname[[i]]
-    smooth_est[[i]] <- select(smooth_est_i, Parameter = Label,M,Mdn,LL,UL,CI,CIType)
-  }
-  names(smooth_est) <- as.character(smterm[[2]][-1])
+  # smooth_est <- vector("list",length = length(object$Bname))
+  # for(i in seq_along(object$Bname)){
+  #
+  #   if(length(object$Bname) == 1) {
+  #     names1 <- variables[grep(pattern = paste0("^bs_.*s",as.character(smterm[[2]][2])," *"), variables)]
+  #     names2<- variables[grep(pattern = paste0("^s_.*s",as.character(smterm[[2]][2]),"_\\d *"), variables)]
+  #   }else{
+  #     names1 <- variables[grep(pattern = paste0("^bs_.*s",as.character(smterm[[2]][[i+1]][[2]])," *"), variables)]
+  #     names2<- variables[grep(pattern = paste0("^s_.*s",as.character(smterm[[2]][[i+1]][[2]]),"_\\d *"), variables)]
+  #   }
+  #
+  #   variables[grep(pattern = paste0("^s_.*s *"), variables)]
+  #
+  #   names <- c(names1,names2)
+  #   smooth <- post[, names]
+  #   smooth_est_i <- as.data.table(do.call(rbind,
+  #                                         apply(smooth, 2, function(var) do.call("bsummary",c(list(x = var), object$Summary_para)))))
+  #   smooth_est_i$Label <- object$Bname[[i]]
+  #   smooth_est[[i]] <- select(smooth_est_i, Parameter = Label,M,Mdn,LL,UL,CI,CIType)
+  # }
+  # names(smooth_est) <- as.character(smterm[[2]][-1])
 
 
   ## linear term
@@ -86,8 +86,8 @@ summary.bmamfit <- function(object, plot.smooth = FALSE, digits = 3, ...){
     linear_est <- NULL
   }
 
-  Conditional_Model <- list(Linear = linear_est,
-                            Smooth = smooth_est)
+  Conditional_Model <- list(Linear = linear_est)
+                            # Smooth = smooth_est)
 
 
 

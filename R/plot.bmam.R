@@ -18,8 +18,8 @@ plot.bmamfit <- function(object, compared.model, conditional = TRUE, display = T
   theme_set(theme_bw())
   theme_replace(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-
   preddat <- object$Preddat # pred data in object
+  if(is.null(preddat$varname)) stop("Provide name of each smooth function in column varname in preddat")
 
   plot_var <- unique(preddat$varname) # smooth term
 

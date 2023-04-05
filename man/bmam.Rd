@@ -70,7 +70,7 @@ Hedeker, D., du Toit, S. H., Demirtas, H. & Gibbons, R. D. (2018)
   \doi{10.1111/biom.12707} \dQuote{A note on marginalization of regression
   parameters from mixed models of binary outcomes}
 
-  McGee G. & Stringer A. (2018) \dQuote{Flexible Marginal Models for
+  McGee G. & Stringer A. (2022) \dQuote{Flexible Marginal Models for
   Dependent Data}
 
   Wiley J, Hedeker D (2022). brmsmargins: Bayesian Marginal Effects for

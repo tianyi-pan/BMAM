@@ -38,7 +38,7 @@
 #'   \doi{10.1111/biom.12707} \dQuote{A note on marginalization of regression
 #'   parameters from mixed models of binary outcomes}
 #'
-#'   McGee G. & Stringer A. (2018) \dQuote{Flexible Marginal Models for
+#'   McGee G. & Stringer A. (2022) \dQuote{Flexible Marginal Models for
 #'   Dependent Data}
 #'
 #'   Wiley J, Hedeker D (2022). brmsmargins: Bayesian Marginal Effects for
@@ -99,7 +99,19 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FA
   }
 
   ## predicted data
-  if (missingArg(preddat)) preddat <- generate_pred(object, length, hsformula = hsformula)
+  if (missingArg(preddat)){
+    tryCatch(
+      expr = {
+        preddat <- generate_pred(object, length, hsformula = hsformula)
+      },
+      error = function(e){
+        stop("Please provide preddat (a data frame containing covariates at which predictions are required)")
+      }
+    )
+
+  }else{
+    if(is.null(preddat$varname)) warnings("Provide name of each smooth function in column varname in preddat")
+  }
 
   ## assert the assumed family / distribution is a supported one
   brmsmargins:::.assertfamily(object)
