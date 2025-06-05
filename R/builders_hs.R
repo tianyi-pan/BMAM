@@ -66,3 +66,38 @@ utils::globalVariables(c("Number"))
   as.matrix(do.call(cbind, data[n]))
 }
 
+
+.buildL <- function (data, block, number, dpar) {
+  stopifnot(data.table::is.data.table(data))
+  n <- brmsmargins:::.namesL(block, number)
+  if (isTRUE(number == 1)) {
+    out <- matrix(1, nrow = nrow(data), ncol = 1)
+    colnames(out) <- n
+  }
+  else {
+    if (!all(n %in% colnames(data))){
+      cor_n <- grep("^cor_.*__.*", colnames(data), value = TRUE)
+      cor_nrow <- (1+sqrt(1+length(cor_n)*8))/2
+      out <- apply(data, 1, function(row.) {
+        cor. <- row.[cor_n]
+        cor_mat <- diag(1, nrow=cor_nrow)
+        ss <- 1
+        for(ii in 1:(cor_nrow-1)){
+          for (jj in (ii+1):cor_nrow) {
+            cor_mat[ii,jj] <- as.numeric(cor.[ss])
+            cor_mat[jj,ii] <- as.numeric(cor.[ss])
+            ss = ss+1
+          }
+        }
+        L. <- t(chol(cor_mat))
+        as.vector(L.)
+      })
+      out <- t(out)
+      colnames(out) <- n
+    } else {
+      out <- as.matrix(data[, ..n])
+    }
+
+  }
+  return(out)
+}

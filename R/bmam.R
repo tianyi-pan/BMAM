@@ -135,7 +135,7 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FA
 
   # CI <- ifelse(is.element("CI", list(...)), CI, 0.99)
   predict_conditional <- conditional_brms(object, preddat, centered = centered, ...)
-
+  # predict_conditional <- NULL
 
 
 
@@ -220,14 +220,15 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FA
     DesignMatrix = NULL, # design matrix B
     Bname = NULL, # variable names for B
     # Smooth = NULL, # fitted values
-    Predicted = NULL, # estimates of each smooth function under different samples # reduce memory usage
+    Predicted_sample = NULL, # estimates of each smooth function under different samples # reduce memory usage
     Predicted_Summary = NULL, # summary of estimates of each smooth function under different samples
     Family = object$family,
     Formula = object$formula,
     Centered = centered)
 
   out$Conditional <- list(Brms = object,
-                          Predicted = predict_conditional)
+                          Predicted = predict_conditional$Predicted, 
+                          Predicted_sample = NULL)
 
   if (isTRUE(summarize)) { # does not work for
     out$Summary <- as.data.table(do.call(rbind, apply(beta, 1, bsummary, ...)))
@@ -302,7 +303,8 @@ bmam <- function(object, preddat, length = 100, summarize = TRUE, posterior = FA
     }
     if (isTRUE(posterior)) {
       out$Posterior <- beta
-      out$Predicted <- Predicted
+      out$Predicted_sample <- Predicted
+      out$Conditional$Predicted_sample <- predict_conditional$Predicted_sample
     }
     out$Preddat <- preddat
   }

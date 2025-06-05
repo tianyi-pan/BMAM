@@ -26,8 +26,13 @@ conditional_brms <- function(object, data, centered = FALSE, ...){
   }else{
     predicted <- t(yhat)
   }
+  return(
+    list(
+      Predicted = as.data.table(do.call(rbind, apply(predicted, 1, bsummary, ...))),
+      Predicted_sample = predicted
+    )
+  )
   
-  as.data.table(do.call(rbind, apply(predicted, 1, bsummary, ...)))
   
   
   ### Method II. minus colmean of design matrix  ##############################
